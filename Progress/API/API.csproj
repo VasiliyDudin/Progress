@@ -18,10 +18,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Entity\Entity.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Controllers" />
+      <ProjectReference Include="..\View\View.csproj" />
     </ItemGroup>
 
 </Project>
