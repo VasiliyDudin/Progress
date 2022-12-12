@@ -1,3 +1,5 @@
+import { SAFE_DELTA_AREA } from "./consts";
+
 export interface ICoordinateSimple {
   x: number;
   y: number;
@@ -7,45 +9,6 @@ export interface ICoordinate extends ICoordinateSimple {
   y: number;
   isEqual(coordinate: ICoordinateSimple): boolean;
 }
-
-const SAFE_DELTA_AREA: Array<ICoordinateSimple> = [
-  {
-    x: 0,
-    y: 0,
-  },
-  {
-    x: -1,
-    y: 0,
-  },
-  {
-    x: 1,
-    y: 0,
-  },
-  {
-    x: 0,
-    y: -1,
-  },
-  {
-    x: 0,
-    y: 1,
-  },
-  // {
-  //   x: -1,
-  //   y: -1,
-  // },
-  // {
-  //   x: 1,
-  //   y: 1,
-  // },
-  // {
-  //   x: 1,
-  //   y: -1,
-  // },
-  // {
-  //   x: -1,
-  //   y: 1,
-  // },
-];
 
 export class CoordinateSimpleEqual implements ICoordinate {
   constructor(public x: number, public y: number) {}
