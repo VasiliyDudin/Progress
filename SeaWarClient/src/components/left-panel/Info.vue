@@ -1,6 +1,5 @@
 <template>
     <div class="border v-100 h-100">
-        Инофрмация по игре пока не понял какая
     </div>
 </template>
   
@@ -8,7 +7,8 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    name: 'Info'
+    name: 'Info',
+
 });</script>
   
 <style lang="less" scoped>

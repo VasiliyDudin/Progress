@@ -1,4 +1,8 @@
-import { SAFE_DELTA_AREA } from "./consts";
+import {
+  HORIZONTAL_AREA_LENGTH,
+  SAFE_DELTA_AREA,
+  VERTICAL_AREA_LENGTH,
+} from "./consts";
 
 export interface ICoordinateSimple {
   x: number;
@@ -36,19 +40,74 @@ export class Coordinate extends CoordinateSimpleEqual implements ICoordinate {
   }
 }
 
+export enum EShipStatus {
+  None = "None",
+  Game = "Game",
+  Move = "Move",
+}
+
 export interface IShip {
-  length: number;
+  /**
+   * точки от "базовой", задают форму корабля
+   */
+  deltaCoordinates: Array<ICoordinateSimple>;
+
+  /**
+   * все точки корабля
+   */
   coordinates: Array<ICoordinate>;
-  isMove: boolean;
+  /**
+   * перемещаем на текущий момент
+   */
+  status: EShipStatus;
+
+  /**
+   * Проверка вхождения координаты в корабль
+   * @param coordinate
+   */
   isExist(coordinate: ICoordinateSimple): boolean;
+
+  /**
+   * корабль можно переместить в указанные координаты
+   * @param coordinates
+   * @param shepps
+   */
   canMove(coordinates: ICoordinateSimple, shepps: Array<IShip>): boolean;
+
+  /**
+   * задать новые координаты кораблю
+   * @param coordinates
+   */
   setNewCoordinate(coordinates: ICoordinateSimple): void;
+
+  /**
+   * зона безопасности (нельзя размещать другой корабль)
+   * @param coordinates
+   */
   isSafeArea(coordinates: ICoordinateSimple): boolean;
+
+  /**
+   * проверка что корабль передвигаем
+   */
+  isMove(): boolean;
+
+  setStatus(newStatus: EShipStatus): void;
 }
 
 abstract class AShape implements IShip {
-  isMove = false;
-  constructor(public length: number, public coordinates: Array<Coordinate>) {}
+  status = EShipStatus.None;
+  public coordinates: Array<Coordinate>;
+  /**
+   *
+   * @param deltaCoordinates  точки от "базовой", задают форму корабля
+   * @param baseCoordinate базовая координата
+   */
+  constructor(
+    public deltaCoordinates: Array<ICoordinateSimple>,
+    baseCoordinate: ICoordinateSimple
+  ) {
+    this.setNewCoordinate(baseCoordinate);
+  }
 
   isSafeArea(coordinates: ICoordinateSimple): boolean {
     return this.coordinates.some((c) => c.isSafeArea(coordinates));
@@ -57,46 +116,102 @@ abstract class AShape implements IShip {
   isExist(coordinates: ICoordinateSimple): boolean {
     return this.coordinates.some((c) => c.isEqual(coordinates));
   }
-  abstract canMove(coordinates: ICoordinateSimple, shepps: IShip[]): boolean;
-  abstract setNewCoordinate(coordinates: ICoordinateSimple): void;
+
+  canMove(coordinates: ICoordinateSimple, shepps: IShip[]) {
+    const futureCoordinate = this.getNewCoordinate(coordinates);
+    return (
+      !shepps
+        .filter((s) => !s.isMove())
+        .some((s) => futureCoordinate.some((c) => s.isSafeArea(c))) &&
+      futureCoordinate.reduce(
+        (result, c) => result && this.isValidCoordinate(c),
+        true
+      )
+    );
+  }
+
+  setNewCoordinate(coordinates: ICoordinateSimple) {
+    this.coordinates = this.getNewCoordinate(coordinates);
+  }
+
+  isMove() {
+    return this.status === EShipStatus.Move;
+  }
+
+  setStatus(newStatus: EShipStatus): void {
+    this.status = newStatus;
+  }
+
+  private getNewCoordinate(coordinates: ICoordinateSimple) {
+    return this.deltaCoordinates.map(
+      (c) => new Coordinate(coordinates.x + c.x, coordinates.y + c.y)
+    );
+  }
+
+  private isValidCoordinate(coordinates: ICoordinateSimple) {
+    return (
+      coordinates.x >= 0 &&
+      coordinates.x < HORIZONTAL_AREA_LENGTH &&
+      coordinates.y >= 0 &&
+      coordinates.y < VERTICAL_AREA_LENGTH
+    );
+  }
 }
 
 export class ShipOne extends AShape {
   constructor(startCoordinate: Coordinate) {
-    super(1, [startCoordinate]);
-  }
-  canMove(coordinates: ICoordinateSimple, shepps: IShip[]): boolean {
-    return !shepps
-      .filter((s) => !s.isMove)
-      .some((s) => s.isSafeArea(coordinates));
-  }
-  setNewCoordinate(coordinates: ICoordinateSimple): void {
-    this.coordinates = [new Coordinate(coordinates.x, coordinates.y)];
+    super([{ x: 0, y: 0 }], startCoordinate);
   }
 }
 
 export class ShipTwo extends AShape {
   constructor(startCoordinate: Coordinate) {
-    super(2, [
-      startCoordinate,
-      new Coordinate(startCoordinate.x + 1, startCoordinate.y),
-    ]);
+    super(
+      [
+        { x: 0, y: 0 },
+        { x: 1, y: 0 },
+      ],
+      startCoordinate
+    );
   }
-  canMove(coordinates: ICoordinateSimple, shepps: IShip[]): boolean {
-    return !shepps
-      .filter((s) => !s.isMove)
-      .some((s) =>
-        [
-          new Coordinate(coordinates.x, coordinates.y),
-          new Coordinate(coordinates.x + 1, coordinates.y),
-        ].some((c) => s.isSafeArea(c))
-      );
+}
+
+export class ShipThreeTypeOne extends AShape {
+  constructor(startCoordinate: Coordinate) {
+    super(
+      [
+        { x: 0, y: 0 },
+        { x: 1, y: 0 },
+        { x: 1, y: 1 },
+      ],
+      startCoordinate
+    );
   }
-  setNewCoordinate(coordinates: ICoordinateSimple): void {
-    this.coordinates = [
-      new Coordinate(coordinates.x, coordinates.y),
-      new Coordinate(coordinates.x + 1, coordinates.y),
-    ];
+}
+export class ShipThreeTypeTwo extends AShape {
+  constructor(startCoordinate: Coordinate) {
+    super(
+      [
+        { x: 0, y: 0 },
+        { x: -1, y: 0 },
+        { x: -1, y: -1 },
+      ],
+      startCoordinate
+    );
+  }
+}
+
+export class ShipFor extends AShape {
+  constructor(startCoordinate: Coordinate) {
+    super(
+      [
+        { x: 0, y: 0 },
+        { x: 0, y: -1 },
+        { x: 0, y: -2 },
+        { x: 1, y: -2 },
+      ],
+      startCoordinate
+    );
   }
 }
 
@@ -108,4 +223,8 @@ export const SHIPS: Array<IShip> = [
   new ShipOne(new Coordinate(8, 0)),
   new ShipTwo(new Coordinate(0, 2)),
   new ShipTwo(new Coordinate(4, 2)),
+  new ShipTwo(new Coordinate(4, 2)),
+  new ShipThreeTypeOne(new Coordinate(0, 4)),
+  new ShipThreeTypeTwo(new Coordinate(0, 4)),
+  new ShipFor(new Coordinate(0, 4)),
 ];

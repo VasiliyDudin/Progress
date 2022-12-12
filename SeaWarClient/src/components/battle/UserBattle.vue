@@ -1,16 +1,11 @@
 <template>
   <table class="battle-table">
     <tr v-for="rowIndex in verticarrArr" :key="rowIndex">
-      <td
-        v-for="colIndex in horizontalArr"
-        :key="colIndex"
-        v-bind:class="{
-          ship: isSheep({ x: colIndex, y: rowIndex }),
-          move: isMove({ x: colIndex, y: rowIndex }),
-        }"
-        @click="startMoveSheep({ x: colIndex, y: rowIndex })"
-        @mousemove="toMoveShip({ x: colIndex, y: rowIndex })"
-      ></td>
+      <td v-for="colIndex in horizontalArr" :key="colIndex" v-bind:class="{
+        ship: isShip({ x: colIndex, y: rowIndex }),
+        move: isMove({ x: colIndex, y: rowIndex }),
+      }" @click="startMoveShip({ x: colIndex, y: rowIndex })" @mousemove="toMoveShip({ x: colIndex, y: rowIndex })">
+      </td>
     </tr>
   </table>
 </template>
@@ -20,6 +15,7 @@ import {
   type ICoordinateSimple,
   type IShip,
   CoordinateSimpleEqual,
+  EShipStatus,
 } from "@/models/IShip.model";
 import { defineComponent, type PropType } from "vue";
 
@@ -48,30 +44,22 @@ export default defineComponent({
       return Array.from(Array(this.horizontalColumn).keys());
     },
   },
-  mounted() {
-    // window.addEventListener("mouseup", () => {
-    //   this.ships.forEach((s) => (s.isMove = false));
-    //   this.movedShip = null;
-    //   this.lastMoveCoordinate = new CoordinateSimpleEqual(-1, -1);
-    //   this.$forceUpdate();
-    // });
-  },
   methods: {
-    isSheep(coordinate: ICoordinateSimple) {
-      return !!this.getSheepByCoordiante(coordinate);
+    isShip(coordinate: ICoordinateSimple) {
+      return !!this.getShipByCoordiante(coordinate);
     },
     isMove(coordinate: ICoordinateSimple) {
-      const sheep = this.getSheepByCoordiante(coordinate);
-      return sheep?.isMove;
+      const ship = this.getShipByCoordiante(coordinate);
+      return ship?.isMove();
     },
-    startMoveSheep(coordinate: ICoordinateSimple) {
-      const ship = this.getSheepByCoordiante(coordinate);
-      this.ships.filter((s) => s !== ship).forEach((s) => (s.isMove = false));
-      //   const ship = this.getSheepByCoordiante(coordinate);
+    startMoveShip(coordinate: ICoordinateSimple) {
+      this.movedShip = null;
+      const ship = this.getShipByCoordiante(coordinate);
+      this.ships.filter(s => s !== ship).forEach(s => s.setStatus(EShipStatus.None));
       if (ship) {
-        ship.isMove = !ship.isMove;
+        ship.setStatus(ship.isMove() ? EShipStatus.None : EShipStatus.Move)
+        this.movedShip = ship.isMove() ? ship : null;
       }
-      this.movedShip = ship?.isMove ? ship : null;
       this.$forceUpdate();
     },
     toMoveShip(coordinate: ICoordinateSimple) {
@@ -87,7 +75,7 @@ export default defineComponent({
         this.$forceUpdate();
       }
     },
-    getSheepByCoordiante(coordinate: ICoordinateSimple) {
+    getShipByCoordiante(coordinate: ICoordinateSimple) {
       return this.ships?.find((s) => s.isExist(coordinate));
     },
   },

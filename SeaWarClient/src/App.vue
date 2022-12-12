@@ -29,8 +29,9 @@
         </div>
       </div>
       <div class="game-area  h-100 border">
-        <UserBattle :horizontal-column="10" :vertical-column="10" :ships="SHIPS"></UserBattle>
-        <RivalBatle :horizontal-column="10" :vertical-column="10"></RivalBatle>
+        <UserBattle :horizontal-column="HORIZONTAL_AREA_LENGTH" :vertical-column="VERTICAL_AREA_LENGTH" :ships="ships">
+        </UserBattle>
+        <RivalBatle :horizontal-column="HORIZONTAL_AREA_LENGTH" :vertical-column="VERTICAL_AREA_LENGTH"></RivalBatle>
       </div>
       <div class="right-panel h-100 border">
         <div class="timer">
@@ -57,26 +58,38 @@ import Timer from './components/right-panel/Timer.vue'
 import Statistics from './components/right-panel/Statistics.vue'
 import UserBattle from './components/battle/UserBattle.vue'
 import RivalBatle from './components/battle/RivalBatle.vue'
-import { SHIPS } from './models/IShip.model'
+import { SHIPS, type IShip } from './models/IShip.model'
+import { HORIZONTAL_AREA_LENGTH, VERTICAL_AREA_LENGTH } from './models/consts'
+import { ShipHelper } from './services/ship.helper'
 
 const timeMock = 30;
 export default defineComponent({
   components: { AppHeader, Info, Chat, Timer, Statistics, UserBattle, RivalBatle },
   setup() {
-    return { SHIPS }
+    return {
+      HORIZONTAL_AREA_LENGTH, VERTICAL_AREA_LENGTH,
+      shipHelper: new ShipHelper(SHIPS, HORIZONTAL_AREA_LENGTH, VERTICAL_AREA_LENGTH)
+    }
   },
   data() {
     return {
+      ships: [] as Array<IShip>,
       seconds: timeMock
     }
   },
   mounted() {
+    this.setRandomShips();
     setInterval(() => {
       --this.seconds
       if (this.seconds <= 0) {
         this.seconds = timeMock
       }
     }, 1000)
+  },
+  methods: {
+    setRandomShips() {
+      this.ships = this.shipHelper.setRandomCoordinate();
+    }
   }
 });
 </script>
