@@ -29,25 +29,25 @@ const SAFE_DELTA_AREA: Array<ICoordinateSimple> = [
     x: 0,
     y: 1,
   },
-  {
-    x: -1,
-    y: -1,
-  },
-  {
-    x: 1,
-    y: 1,
-  },
-  {
-    x: 1,
-    y: -1,
-  },
-  {
-    x: -1,
-    y: 1,
-  },
+  // {
+  //   x: -1,
+  //   y: -1,
+  // },
+  // {
+  //   x: 1,
+  //   y: 1,
+  // },
+  // {
+  //   x: 1,
+  //   y: -1,
+  // },
+  // {
+  //   x: -1,
+  //   y: 1,
+  // },
 ];
 
-class CoordinateSimpleEqual implements ICoordinate {
+export class CoordinateSimpleEqual implements ICoordinate {
   constructor(public x: number, public y: number) {}
   isEqual(coordinate: ICoordinateSimple): boolean {
     return coordinate.x == this.x && coordinate.y === this.y;
