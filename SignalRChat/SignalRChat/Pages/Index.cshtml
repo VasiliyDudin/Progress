@@ -1,0 +1,39 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = null;
+    string userID = new Random().Next(int.MinValue,int.MaxValue).ToString();
+}
+      <div class="text-center">
+        <section class="p-4 w-100" style="background-color: #eee; border-radius: .5rem .5rem 0 0;">
+            <div class="row d-flex justify-content-center">
+                <div class="col-md-8 col-lg-6 col-xl-5">
+                    <div class="card"s>
+                        <div class="card-header d-flex justify-content-between align-items-center p-3" style="border-top: 4px solid #ffa900;">
+                        <h5 class="mb-0">BattleShipChat</h5>
+                            <div class="d-flex flex-row align-items-center">
+                              
+                            </div>
+                        </div>
+                        <div class="card-body perfect-scrollbar ps ps--active-y" id="messagesList" data-mdb-perfect-scrollbar="true" style="overflow-y: auto; position: relative; height: 400px">
+                          
+                        </div>
+                        <div class="card-footer text-muted d-flex justify-content-start align-items-center p-3">
+                            <div class="input-group mb-0">
+                            <input type="hidden" id="userInput" value="User_@userID"/>
+                            <input type="text" class="form-control" id="messageInput" placeholder="Текст сообщения" aria-label="messageInput" messageInput aria-describedby="sendButton">
+                                <button class="btn btn-warning" type="button" id="sendButton">
+                                    Отправить
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </div>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/chat.js"></script>
