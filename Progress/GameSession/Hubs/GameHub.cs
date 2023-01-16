@@ -21,12 +21,6 @@ namespace GameSession.Hubs
             await Clients.Caller.SendAsync("Responce", $"привет {Context.ConnectionId}!!"); ;
         }
 
-
-        public async Task Send(string msg)
-        {
-            await Clients.Caller.SendAsync("Responce", $"привет {Context.ConnectionId}!! {msg}"); ;
-        }
-
         public async Task GameStart(MessageDto<IEnumerable<ShipDto>> msg)
         {
 
