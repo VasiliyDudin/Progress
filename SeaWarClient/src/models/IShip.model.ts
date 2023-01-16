@@ -3,11 +3,8 @@ import {
   SAFE_DELTA_AREA,
   VERTICAL_AREA_LENGTH,
 } from "./consts";
+import type { ICoordinateSimple, IShipDto } from "./dto.model";
 
-export interface ICoordinateSimple {
-  x: number;
-  y: number;
-}
 export interface ICoordinate extends ICoordinateSimple {
   x: number;
   y: number;
@@ -92,6 +89,8 @@ export interface IShip {
   isMove(): boolean;
 
   setStatus(newStatus: EShipStatus): void;
+
+  toDto(): IShipDto;
 }
 
 abstract class AShape implements IShip {
@@ -140,6 +139,15 @@ abstract class AShape implements IShip {
 
   setStatus(newStatus: EShipStatus): void {
     this.status = newStatus;
+  }
+
+  toDto(): IShipDto {
+    return {
+      coordinates: this.coordinates.map((c) => ({
+        x: c.x,
+        y: c.y,
+      })),
+    };
   }
 
   private getNewCoordinate(coordinates: ICoordinateSimple) {
