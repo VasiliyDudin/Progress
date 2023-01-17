@@ -1,6 +1,6 @@
-import {
-  type IShipDto,
-  type ICoordinateSimple,
+import type {
+  IShipDto,
+  ICoordinateSimple,
   EShootStatus,
 } from "@/models/dto.model";
 import { defineStore } from "pinia";
@@ -12,13 +12,17 @@ export enum EStatusGame {
   Find = "Find",
   Game = "Game",
 }
-
+export interface IcoordinateShoot extends ICoordinateSimple {
+  status: EShootStatus;
+}
 export const gameStore = defineStore("game", {
   state() {
     return {
       gameStatus: EStatusGame.Init,
       otherGamerId: null as string,
       shootGamerId: null as string,
+      otherCombatField: [] as Array<IcoordinateShoot>,
+      myCombatField: [] as Array<IcoordinateShoot>,
     };
   },
   actions: {
@@ -43,17 +47,13 @@ export const gameStore = defineStore("game", {
           map((msg) => msg.payload)
         )
         .subscribe((result) => {
-          if (
-            [
-              EShootStatus.Hit,
-              EShootStatus.Killing,
-              EShootStatus.KillingAll,
-            ].includes(result.shootStatus)
-          ) {
-            this.shootGamerId = result.sourceGamerConnectionId;
-            return;
+          this.shootGamerId = result.nextGamerShooterConnectionId;
+          if (result.targetGamerConnectionId === this.otherGamerId) {
+            this.otherCombatField.push({
+              ...result.coordinate,
+              status: result.shootStatus,
+            });
           }
-          this.shootGamerId = result.targetGamerConnectionId;
         });
     },
     sendShoot(coordinate: ICoordinateSimple) {

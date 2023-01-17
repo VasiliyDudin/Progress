@@ -13,6 +13,9 @@ namespace Contracts.DTO
         public EShootStatus ShootStatus { get; set; }
         public string SourceGamerConnectionId { get; set; }
         public string TargetGamerConnectionId { get; set; }
+        public string NextGamerShooterConnectionId { get; set; }
+
+        public CoordinateSimple Coordinate { get; set; }
     }
 
     public class InitGameDto

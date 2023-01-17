@@ -44,19 +44,19 @@ namespace Contracts.Enums
         public static bool IsMissing(this EShootStatus shootStatus)
         {
             {
-                return shootStatus == EShootStatus.Miss;
+                return shootStatus.Equals(EShootStatus.Miss);
             }
         }
         public static bool IsHit(this EShootStatus shootStatus)
         {
             {
-                return shootStatus == EShootStatus.Hit;
+                return shootStatus.Equals(EShootStatus.Hit);
             }
         }
         public static bool IsKilling(this EShootStatus shootStatus)
         {
             {
-                return shootStatus == EShootStatus.Killing;
+                return shootStatus.Equals(EShootStatus.Killing);
             }
         }
     }

@@ -28,4 +28,6 @@ export interface ShootResultDto {
   shootStatus: EShootStatus;
   sourceGamerConnectionId: string;
   targetGamerConnectionId: string;
+  nextGamerShooterConnectionId: string;
+  coordinate: ICoordinateSimple;
 }
