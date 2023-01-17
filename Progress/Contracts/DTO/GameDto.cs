@@ -14,4 +14,10 @@ namespace Contracts.DTO
         public string SourceGamerConnectionId { get; set; }
         public string TargetGamerConnectionId { get; set; }
     }
+
+    public class InitGameDto
+    {
+        public string OtherGamerConnectionId { get; set; }
+        public string ShootGamerConnectionId { get; set; }
+    }
 }

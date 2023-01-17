@@ -45,12 +45,19 @@
         >
         </UserBattle>
         <div class="rival d-flex justify-content-center align-items-center">
-          <RivalBatle
+          <div
             v-if="gameStore.gameStatus === EStatusGame.Game"
-            :horizontal-column="HORIZONTAL_AREA_LENGTH"
-            :vertical-column="VERTICAL_AREA_LENGTH"
+            class="d-flex flex-column align-items-center"
           >
-          </RivalBatle>
+            <strong>{{ gameStore.otherGamerId }}</strong>
+            <RivalBatle
+              :class="{ shoot: gameStore.isShoot }"
+              :horizontal-column="HORIZONTAL_AREA_LENGTH"
+              :vertical-column="VERTICAL_AREA_LENGTH"
+              @click="shoot($event)"
+            >
+            </RivalBatle>
+          </div>
           <button
             v-if="gameStore.gameStatus === EStatusGame.Init"
             type="button"
@@ -92,11 +99,12 @@ import Timer from "./components/right-panel/Timer.vue";
 import Statistics from "./components/right-panel/Statistics.vue";
 import UserBattle from "./components/battle/UserBattle.vue";
 import RivalBatle from "./components/battle/RivalBatle.vue";
-import { SHIPS, type IShip } from "./models/IShip.model";
+import { SHIPS, type ICoordinate, type IShip } from "./models/IShip.model";
 import { HORIZONTAL_AREA_LENGTH, VERTICAL_AREA_LENGTH } from "./models/consts";
 import { ShipHelper } from "./services/ship.helper";
 import { gameStore, EStatusGame } from "./stores/gameStore";
 import { mapStores } from "pinia";
+import type { ICoordinateSimple } from "./models/dto.model";
 
 const timeMock = 30;
 export default defineComponent({
@@ -145,6 +153,12 @@ export default defineComponent({
     },
     startGame() {
       this.gameStore.gameStart(this.ships.map((s) => s.toDto()));
+    },
+    shoot(coordinate: ICoordinateSimple) {
+      if (!this.gameStore.isShoot) {
+        return;
+      }
+      this.gameStore.sendShoot(coordinate);
     },
   },
 });
@@ -205,6 +219,9 @@ export default defineComponent({
     .rival {
       width: 400px;
       height: 400px;
+    }
+    .shoot {
+      border: solid 3px green;
     }
   }
 }

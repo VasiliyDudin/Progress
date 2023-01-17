@@ -11,6 +11,8 @@ namespace GameSession.Models
         public Game(params Gamer[] gamers)
         {
             Gamers = gamers;
+            var rand = new Random();
+            gamers[rand.Next(1)].IsShooted = true;
         }
 
         public EShootStatus SendShoot(string shootGamerConnectionId, CoordinateSimple coordinateShoot)
@@ -26,6 +28,8 @@ namespace GameSession.Models
             }
             return status;
         }
+
+
         public bool IsExistGamer(string gamerConnectionId)
         {
             return Gamers.Any(g => g.ConnetcionId.Equals(gamerConnectionId));
@@ -38,6 +42,10 @@ namespace GameSession.Models
         public Gamer GetShooterGamer(string shootGamerConnectionId)
         {
             return Gamers.Single(g => g.ConnetcionId.Equals(shootGamerConnectionId));
+        }
+        public Gamer GetShooterGamer()
+        {
+            return Gamers.Single(g => g.IsShooted);
         }
     }
 
