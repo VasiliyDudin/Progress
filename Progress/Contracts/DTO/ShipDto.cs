@@ -27,7 +27,7 @@ namespace Contracts.DTO
             {
                 return EShootStatus.Killing;
             }
-            return EShootStatus.Miss;
+            return EShootStatus.Hit;
         }
     }
 

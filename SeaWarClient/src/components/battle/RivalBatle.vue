@@ -5,13 +5,19 @@
         v-for="colIndex in horizontalArr"
         :key="colIndex"
         @click="click(rowIndex, colIndex)"
+        :class="{
+          shoot: isShoot(statusCoodinante(colIndex, rowIndex)),
+          miss: statusCoodinante(colIndex, rowIndex) === EShootStatus.Miss,
+        }"
       ></td>
     </tr>
   </table>
 </template>
 
 <script lang="ts">
-import type { ICoordinateSimple } from "@/models/dto.model";
+import { EShootStatus, type ICoordinateSimple } from "@/models/dto.model";
+import { gameStore } from "@/stores/gameStore";
+import { mapStores } from "pinia";
 import { defineComponent } from "vue";
 
 export default defineComponent({
@@ -19,6 +25,11 @@ export default defineComponent({
   props: {
     verticalColumn: Number,
     horizontalColumn: Number,
+  },
+  setup() {
+    return {
+      EShootStatus,
+    };
   },
   emits: {
     click: (coordinate: ICoordinateSimple) => true,
@@ -30,10 +41,22 @@ export default defineComponent({
     horizontalArr() {
       return Array.from(Array(this.horizontalColumn).keys());
     },
+    ...mapStores(gameStore),
   },
   methods: {
     click(row: number, col: number) {
       this.$emit("click", { x: col, y: row });
+    },
+    statusCoodinante(x: number, y: number) {
+      return this.gameStore.otherCombatField.find((c) => c.x === x && c.y === y)
+        ?.status;
+    },
+    isShoot(status: EShootStatus) {
+      return [
+        EShootStatus.Hit,
+        EShootStatus.Killing,
+        EShootStatus.KillingAll,
+      ].includes(status);
     },
   },
 });
@@ -41,4 +64,12 @@ export default defineComponent({
 
 <style lang="less" scoped>
 @import "./battle.less";
+td {
+  &.shoot {
+    background-color: red;
+  }
+  &.miss {
+    background-color: blue;
+  }
+}
 </style>

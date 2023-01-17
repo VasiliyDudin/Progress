@@ -20,9 +20,9 @@ namespace GameSession.Models
 
         public EShootStatus EvolveShoot(CoordinateSimple coordinateShoot)
         {
-            var shootedShipsStatus = Ships.Select(s => s.ShootValidate(coordinateShoot));
-            EShootStatus? status = shootedShipsStatus.SingleOrDefault(s => s != EShootStatus.Miss);
-            return status ?? EShootStatus.Miss;
+            var shootedShipsStatus = Ships.Select(s => s.ShootValidate(coordinateShoot)).ToList();
+            EShootStatus status = shootedShipsStatus.SingleOrDefault(s => !s.IsMissing());
+            return status == EShootStatus.Unknown ? EShootStatus.Miss : status;
 
         }
 

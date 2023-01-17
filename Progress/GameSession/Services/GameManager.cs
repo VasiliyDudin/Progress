@@ -25,7 +25,9 @@ namespace GameSession.Services
                 ShootStatus = status,
                 SourceGamerConnectionId = shootGamerConnectionId,
                 TargetGamerConnectionId = otherGamer.ConnetcionId,
-                GameUid = game.Uid
+                GameUid = game.Uid,
+                NextGamerShooterConnectionId = game.GetShooterGamer().ConnetcionId,
+                Coordinate = coordinateShoot
             };
         }
     }
