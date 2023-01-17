@@ -1,9 +1,5 @@
-import {
-  EShipStatus,
-  type ICoordinateSimple,
-  type IShip,
-} from "@/models/IShip.model";
-
+import { EShipStatus, type IShip } from "@/models/IShip.model";
+import type { ICoordinateSimple } from "@/models/dto.model";
 export class ShipHelper {
   constructor(
     private ships: Array<IShip>,
