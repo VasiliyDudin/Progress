@@ -14,6 +14,7 @@ public class DatabaseContext:DbContext
     public DbSet<Game> Games { get; set; }
     public DbSet<GameStatistic> GameStatistics { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<BattelField> BattelFields { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -21,6 +22,8 @@ public class DatabaseContext:DbContext
         modelBuilder.Entity<Game>();
         modelBuilder.Entity<GameStatistic>();
         modelBuilder.Entity<BattelField>();
-        modelBuilder.Entity<User>();
+        //т.к. Email должен быть уникальным + индекс - для быстрого поиска по почте
+        modelBuilder.Entity<User>().HasIndex(i => i.Email).IsUnique();
+        modelBuilder.Entity<RefreshToken>();
     }
 }
