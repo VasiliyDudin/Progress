@@ -23,11 +23,7 @@ public class DatabaseContext:DbContext
         modelBuilder.Entity<GameStatistic>();
         modelBuilder.Entity<BattelField>();
         //т.к. Email должен быть уникальным + индекс - для быстрого поиска по почте
-        modelBuilder.Entity<User>(o =>
-        {
-            o.HasIndex(i => i.Email).IsUnique();
-            o.Property(p => p.IpAdress).IsRequired(false);
-        });
-        modelBuilder.Entity<RefreshToken>().HasOne<User>(p => p.User);
+        modelBuilder.Entity<User>().HasIndex(i => i.Email).IsUnique();
+        modelBuilder.Entity<RefreshToken>();
     }
 }
