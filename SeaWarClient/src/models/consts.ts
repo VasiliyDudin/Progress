@@ -1,4 +1,4 @@
-import type { ICoordinateSimple } from "./IShip.model";
+import type { ICoordinateSimple } from "./dto.model";
 
 export const SAFE_DELTA_AREA: Array<ICoordinateSimple> = [
   {

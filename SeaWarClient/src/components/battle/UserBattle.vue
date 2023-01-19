@@ -12,12 +12,13 @@
 
 <script lang="ts">
 import {
-  type ICoordinateSimple,
   type IShip,
   CoordinateSimpleEqual,
   EShipStatus,
 } from "@/models/IShip.model";
 import { defineComponent, type PropType } from "vue";
+
+import type{   ICoordinateSimple } from "@/models/dto.model";
 
 export default defineComponent({
   name: "UserBattle",
