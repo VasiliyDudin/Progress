@@ -10,7 +10,7 @@ public class OutUserView
 
     public string Email { get; set; }
 
-    public string[] Roles { get; set; }
+    public Role Role { get; set; }
 
     public string Token { get; set; }
 

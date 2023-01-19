@@ -8,6 +8,7 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "API\API.csproj", "{FD44FA81-1CC1-4EC6-9F3A-D173B73821D7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "View", "View\View.csproj", "{E4EB429C-6A11-4368-851D-D6D9C2637B3E}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{4386BCF9-1AEB-4FC0-876A-2A50C80CF5EF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientHosted", "ClientHosted\ClientHosted.csproj", "{AB9F760E-4B3F-436B-91FB-2C0B12283E86}"
@@ -15,6 +16,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameSession", "GameSession\GameSession.csproj", "{23ED0871-61DC-4D51-A94D-71E7457830E4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contracts", "Contracts\Contracts.csproj", "{F07EB380-099E-4D07-AE3C-8C95DDC2201F}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Auth", "Auth\Auth.csproj", "{4E1A17D6-D752-4417-9181-F3E43DC6A52E}"
 EndProject
 Global
