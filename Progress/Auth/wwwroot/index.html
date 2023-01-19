@@ -21,9 +21,9 @@
     </p>
     <input type="submit" id="submitLogin" value="Логин" />
 </div>
-<p>
+<!--<p>
     <input type="submit" id="getData" value="Получить данные" />
-</p>
+</p>-->
 
 <script>
     var tokenKey = "accessToken";
@@ -48,12 +48,13 @@
             document.getElementById("userInfo").style.display = "block";
             document.getElementById("loginForm").style.display = "none";
             // сохраняем в хранилище sessionStorage токен доступа
-            sessionStorage.setItem(tokenKey, data.access_token);
+            sessionStorage.setItem(tokenKey, data.token);
         }
         else  // если произошла ошибка, получаем код статуса
             console.log("Status: ", response.status);
     });
 
+    //TODO: пример использования аутентификации
     // кнопка для обращения по пути "/data" для получения данных
     document.getElementById("getData").addEventListener("click", async e => {
         e.preventDefault();

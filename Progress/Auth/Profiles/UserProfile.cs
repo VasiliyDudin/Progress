@@ -10,6 +10,6 @@ public class UserProfile : Profile
     public UserProfile()
     {
         CreateMap<OutUserView, User>().ReverseMap();
-        CreateMap<InUserView, User>();
+        CreateMap<InCreateUserView, User>();
     }
 }

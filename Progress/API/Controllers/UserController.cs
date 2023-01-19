@@ -53,7 +53,7 @@ public class UserController : ControllerBase
             Id = user.Id,
             Name = user.Name,
             Email = user.Email,
-            Roles = user.Roles
+            Role = user.Role
         };
         return Ok(result);
     }

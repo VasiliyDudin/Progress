@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace Entity.Models;
 
@@ -14,7 +13,11 @@ public class User
     [Column("name"), Required]
     public string Name { get; set; }
     
-    [Column("ip_adress"), Required]
+    /// <summary>
+    /// IP-адрес пользователя.
+    /// TODO: Очень изменчивая штука так-то, если оставлять, стоит перенести наверное в таблицу RefreshToken
+    /// </summary>
+    [Column("ip_adress")]
     public string IpAdress { get; set; }
     
     [Column("email"), Required, EmailAddress]
@@ -23,15 +26,8 @@ public class User
     [Column("status"), Required]
     public Status Status { get; set; }
     
-    [Column("roles"), Required]
-    public string RolesString
-    {
-        get => Roles != null ? string.Join(",", Roles) : null;
-        set => Roles = !string.IsNullOrWhiteSpace(value) ? value.Split(",") : null;
-    }
-    
-    [NotMapped]
-    public string[] Roles { get; set; }
+    [Column("role"), Required]
+    public Role Role { get; set; }
     
     [Column("password_hash"), Required]
     public byte[] PasswordHash { get; set; }
@@ -45,4 +41,10 @@ public enum Status
     Active,
     Unactive,
     InGame
+}
+public enum Role
+{
+    User,
+    Admin,
+    Server
 }
