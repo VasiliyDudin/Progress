@@ -54,7 +54,7 @@ public class UserProvider:IUserProvider
         
         // Чистим старые refresh-токены
         var rTokens = await _context.RefreshTokens
-            .Where(rt => rt.UserId == userDb.Id && rt.Expiration < DateTimeOffset.UtcNow).ToListAsync(stoppingToken);
+            .Where(rt => rt.UserId == userDb.Id && rt.Expiration < DateTimeOffset.Now).ToListAsync(stoppingToken);
         if (rTokens.Any())
             _context.RefreshTokens.RemoveRange(rTokens);
 
@@ -88,7 +88,7 @@ public class UserProvider:IUserProvider
         throw new UnsupportedContentTypeException("");
     }
 
-    public async Task<IActionResult> CreateAsync(InCreateUserView userView,
+    public async Task<IActionResult> CreateAsync(InUserView userView,
         CancellationToken stoppingToken = default)
     {
         // validation
@@ -98,8 +98,6 @@ public class UserProvider:IUserProvider
         if (await _context.Users.AsNoTracking().AnyAsync(x => x.Email == userView.Email, cancellationToken: stoppingToken))
             return new ConflictObjectResult("Пользователь с такой почтой \"" + userView.Email + "\" уже зарегистрирован");
 
-        if (string.IsNullOrEmpty(userView.Name)) userView.Name = userView.Email;
-        
         var (passwordHash, passwordSalt) = CreatePasswordHash(userView.Password);
         var userDb = _mapper.Map<User>(userView);
         userDb.PasswordHash = passwordHash;
@@ -146,21 +144,18 @@ public class UserProvider:IUserProvider
         var randomNumber = new byte[size];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
-        return (Convert.ToBase64String(randomNumber), DateTimeOffset.UtcNow.AddMinutes(_refreshTokenLifetime));
+        return (Convert.ToBase64String(randomNumber), DateTimeOffset.Now.AddMinutes(_refreshTokenLifetime));
     }
     
     private string GenerateAccessToken(User userDb)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_authSecret);
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.Role, Enum.GetName(userDb.Role)!),
-            new(nameof(userDb.Id), userDb.Id.ToString())
-        };
+        var claims = userDb.Roles.Select(r => new Claim(ClaimTypes.Role, r)).ToList();
+        claims.Add(new Claim(nameof(userDb.Email), userDb.Email));
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new GenericIdentity(userDb.Name),
+            Subject = new ClaimsIdentity(new GenericIdentity(userDb.Id.ToString()),
                 claims.ToArray()
             ),
             Expires = DateTime.Now.AddMinutes(_authTokenLifetime),
@@ -176,10 +171,10 @@ public class UserProvider:IUserProvider
         byte[] passwordHash;
         byte[] passwordSalt;
 
-        using (var hmac = new HMACSHA512())
+        using (var hmac = new System.Security.Cryptography.HMACSHA512())
         {
             passwordSalt = hmac.Key;
-            passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+            passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
         }
 
         return (passwordHash, passwordSalt);

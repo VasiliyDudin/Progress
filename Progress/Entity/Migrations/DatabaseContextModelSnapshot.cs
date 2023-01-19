@@ -136,6 +136,7 @@ namespace Entity.Migrations
                         .HasColumnName("email");
 
                     b.Property<string>("IpAdress")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("ip_adress");
 
@@ -154,9 +155,10 @@ namespace Entity.Migrations
                         .HasColumnType("bytea")
                         .HasColumnName("password_salt");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("integer")
-                        .HasColumnName("role");
+                    b.Property<string>("RolesString")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("roles");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer")

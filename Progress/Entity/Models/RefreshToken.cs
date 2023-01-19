@@ -19,5 +19,6 @@ public class RefreshToken
     [Column("expiration"), Required]
     public DateTimeOffset Expiration { get; set; }
 
+    [ForeignKey("user_id")]
     public User User { get; set; }
 }
