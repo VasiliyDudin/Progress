@@ -21,9 +21,9 @@
     </p>
     <input type="submit" id="submitLogin" value="Логин" />
 </div>
-<!--<p>
-    <input type="submit" id="getData" value="Получить данные" />
-</p>-->
+<p>
+    <input type="submit" id="getData" value="Получить данные" style="display: none;" />
+</p>
 
 <script>
     var tokenKey = "accessToken";
@@ -44,7 +44,7 @@
             // получаем данные
             const data = await response.json();
             // изменяем содержимое и видимость блоков на странице
-            document.getElementById("userName").innerText = data.username;
+            document.getElementById("userName").innerText = data.name;
             document.getElementById("userInfo").style.display = "block";
             document.getElementById("loginForm").style.display = "none";
             // сохраняем в хранилище sessionStorage токен доступа
