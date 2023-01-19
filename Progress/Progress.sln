@@ -52,7 +52,7 @@ Global
 		{F07EB380-099E-4D07-AE3C-8C95DDC2201F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F07EB380-099E-4D07-AE3C-8C95DDC2201F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F07EB380-099E-4D07-AE3C-8C95DDC2201F}.Release|Any CPU.Build.0 = Release|Any CPU
-	    {4E1A17D6-D752-4417-9181-F3E43DC6A52E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+					{4E1A17D6-D752-4417-9181-F3E43DC6A52E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4E1A17D6-D752-4417-9181-F3E43DC6A52E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E1A17D6-D752-4417-9181-F3E43DC6A52E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E1A17D6-D752-4417-9181-F3E43DC6A52E}.Release|Any CPU.Build.0 = Release|Any CPU
@@ -62,5 +62,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F48170CA-B932-4486-A03D-D9E62AF02943}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4E1A17D6-D752-4417-9181-F3E43DC6A52E} = {4386BCF9-1AEB-4FC0-876A-2A50C80CF5EF}
+		{23ED0871-61DC-4D51-A94D-71E7457830E4} = {4386BCF9-1AEB-4FC0-876A-2A50C80CF5EF}
 	EndGlobalSection
 EndGlobal
