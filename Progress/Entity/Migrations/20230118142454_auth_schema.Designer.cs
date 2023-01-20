@@ -3,6 +3,7 @@ using System;
 using Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Entity.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230118142454_auth_schema")]
+    partial class authschema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -136,6 +139,7 @@ namespace Entity.Migrations
                         .HasColumnName("email");
 
                     b.Property<string>("IpAdress")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("ip_adress");
 
@@ -154,9 +158,10 @@ namespace Entity.Migrations
                         .HasColumnType("bytea")
                         .HasColumnName("password_salt");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("integer")
-                        .HasColumnName("role");
+                    b.Property<string>("RolesString")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("roles");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer")

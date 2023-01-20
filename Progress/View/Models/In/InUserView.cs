@@ -10,4 +10,5 @@ public class InUserView
     public string IpAdress { get; set; }
     public string Email { get; set; }
     public Status Status { get; set; }
+    public string Password { get; set; }
 }
