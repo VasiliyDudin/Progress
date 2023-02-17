@@ -12,15 +12,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Entity.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20230119103032_remove_userId1_refresh_token")]
-    partial class removeuserId1refreshtoken
+    [Migration("20230217195243_remove_userId1_refresh_token")]
+    partial class remove_userId1_refresh_token
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.0")
+                .HasAnnotation("ProductVersion", "7.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -110,18 +110,11 @@ namespace Entity.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("user_id");
 
-                    b.Property<long>("user_id")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("user_id");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("refresh_tokens", "auth", t =>
-                        {
-                            t.Property("user_id")
-                                .HasColumnName("user_id1");
-                        });
+                    b.ToTable("refresh_tokens", "auth");
                 });
 
             modelBuilder.Entity("Entity.Models.User", b =>
@@ -207,7 +200,7 @@ namespace Entity.Migrations
                 {
                     b.HasOne("Entity.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("user_id")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
