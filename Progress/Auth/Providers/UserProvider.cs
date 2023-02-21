@@ -77,7 +77,25 @@ public class UserProvider:IUserProvider
     
     public async Task<IActionResult> RefreshAsync(string refreshToken, CancellationToken stoppingToken)
     {
-        throw new UnsupportedContentTypeException("");
+        var refreshData = await _context.RefreshTokens.FirstOrDefaultAsync(x => x.Token == refreshToken, stoppingToken);
+        if (refreshData == null || refreshData.Expiration < DateTimeOffset.Now)
+            return new BadRequestObjectResult("Неверный токен");
+
+        var userDb = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == refreshData.UserId, stoppingToken);
+        if (userDb == null)
+            return new NotFoundObjectResult("Пользователь не найден");
+
+        // добавляем новый refresh-токен
+        var newRefreshToken = GenerateRefreshToken();
+        refreshData.Expiration = newRefreshToken.expiration;
+        refreshData.Token = newRefreshToken.value;
+        await _context.SaveChangesAsync(stoppingToken);
+
+        var user = _mapper.Map<OutUserView>(userDb);
+        user.Token = GenerateAccessToken(userDb);
+        user.RefreshToken = newRefreshToken.value;
+
+        return new OkObjectResult(user);
     }
     public async Task<IActionResult> GetAllAsync(CancellationToken stoppingToken)
     {
