@@ -21,12 +21,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Auth", "Auth\Auth.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserStatistic", "UserStatistic\UserStatistic.csproj", "{E39FF2AA-9459-46D1-A0DE-4586CE4FAA99}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configs", "Configs", "{551840BC-FFC1-41C3-9790-5290E1ECF297}"
-	ProjectSection(SolutionItems) = preProject
-		Auth\appsettings.Development.json = Auth\appsettings.Development.json
-		Auth\appsettings.json = Auth\appsettings.json
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

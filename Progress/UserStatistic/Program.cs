@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Entity;
 using System.Text;
+using UserStatistic.API;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,9 +11,12 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddSwaggerGen();
 
+string connstr = builder.Configuration.GetConnectionString("CORE_CONNECTION_STRING");
+UserStatisticAPI._connstr = connstr;
+
 builder.Services.AddDbContext<DatabaseContext>(option =>
 {
-    option.UseNpgsql(builder.Configuration.GetConnectionString("CORE_CONNECTION_STRING"));
+    option.UseNpgsql(connstr);
     option.EnableDetailedErrors();
 });
 
