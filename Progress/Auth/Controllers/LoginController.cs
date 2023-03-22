@@ -28,15 +28,4 @@ public class LoginController : ControllerBase
         var userResult = await _userProvider.AuthenticateAsync(authView);
         return userResult;
     }
-    
-    [HttpPut]
-    [ProducesResponseType(typeof(OutUserView), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> RefreshAsync([FromBody]InRefreshTokenView model)
-    {
-        var userResult = await _userProvider.RefreshAsync(model.Token);
-        return userResult;
-    }
 }
