@@ -9,7 +9,7 @@ namespace Auth.Controllers;
 
 [Produces(MediaTypeNames.Application.Json)]
 [Consumes(MediaTypeNames.Application.Json)]
-[Route("login"), ApiController]
+[Route("api/[controller]"), ApiController]
 public class LoginController : ControllerBase
 {
     private readonly IUserProvider _userProvider;

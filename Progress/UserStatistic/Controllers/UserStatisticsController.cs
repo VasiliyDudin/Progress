@@ -5,7 +5,7 @@ using System.Data.Entity;
 using View.Models.In;
 using View.Models.Out;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+// For more information on enabling Web APIGateway for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace UserStatistic.Controllers
 {

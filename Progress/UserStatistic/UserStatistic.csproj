@@ -27,7 +27,6 @@
   <ItemGroup>
 	<ProjectReference Include="..\Entity\Entity.csproj" />
 	<ProjectReference Include="..\View\View.csproj" />
-    <Folder Include="Models\" />
   </ItemGroup>
 
 </Project>
