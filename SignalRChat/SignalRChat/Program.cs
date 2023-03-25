@@ -1,4 +1,4 @@
-using SignalRChat.Hubs;
+
 namespace SignalRChat
 {
     public class Program
@@ -6,11 +6,12 @@ namespace SignalRChat
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
+   
+           // Add services to the container.
             builder.Services.AddRazorPages();
-            builder.Services.AddSignalR();
-
+          //  builder.Services.AddSignalR();
+          //  builder.Services.AddSingleton<IRepository, Repository>();
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -27,10 +28,10 @@ namespace SignalRChat
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseAuthentication();
 
             app.MapRazorPages();
-            app.MapHub<ChatHub>("/chatHub");
-
+     
             app.Run();
         }
     }

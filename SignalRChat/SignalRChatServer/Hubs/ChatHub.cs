@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.SignalR;
-using SignalRChat.Abstracts;
-using System.CodeDom.Compiler;
+﻿using Microsoft.AspNetCore.SignalR;
+using SignalRChatServer.Abstracts;
 
 namespace SignalRChat.Hubs
 {
-   // [Authorize]
+    // [Authorize]
     public class ChatHub : Hub
     {
         private IRepository _repo;
@@ -41,7 +39,7 @@ namespace SignalRChat.Hubs
         private string UserNameGenerate()
         {
             var userName = "User_" + (new Random().Next(99999).ToString());
-            if (_repo.GetUser(Context.ConnectionId) != null)
+            if (_repo.GetAllUsers()?.FirstOrDefault(p=>p.Name == userName) != null)
             {
                return UserNameGenerate();
             }
@@ -98,11 +96,13 @@ namespace SignalRChat.Hubs
         public async Task RemoveFromOldGroup(string connectionId)
         {
             var user = _repo.GetUser(connectionId);
-            if (!string.IsNullOrWhiteSpace(user?.GroupName))
+            if (user?.GroupName!=null)
             {
                 user.Status = UserStatus.On;
                 await Clients.Group(user.GroupName).SendAsync("SendToGroup", $"{user.Name}", "false", $" покинул группу {user?.GroupName}.");
                 await Groups.RemoveFromGroupAsync(user.ConnectionId, user.GroupName);
+                Task.WaitAll();             
+                user.GroupName = null;
             }
             
         }
