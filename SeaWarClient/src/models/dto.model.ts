@@ -23,6 +23,12 @@ export enum EShootStatus {
   Killing = 3,
   KillingAll = 4,
 }
+/** статусы попадания */
+export const SHOOT_TARGET_STATUSES = [
+  EShootStatus.Hit,
+  EShootStatus.Killing,
+  EShootStatus.KillingAll,
+];
 
 export interface ShootResultDto {
   shootStatus: EShootStatus;

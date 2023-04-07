@@ -9,5 +9,5 @@ public class InCreateUserView
     public string Email { get; set; }
     public string Password { get; set; }
     
-    public string IpAdress { get; set; }
+    public string? IpAdress { get; set; }
 }
