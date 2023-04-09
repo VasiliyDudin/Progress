@@ -1,7 +1,11 @@
 ﻿using System.Net.Mime;
+using System.Text.Json;
 using Auth.Providers.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RabbitMQLibrary.RabbitMQ.Abstract;
+using RabbitMQLibrary.RabbitMQ.DTO;
+using RabbitMQLibrary;
 using View.Models.In;
 using View.Models.Out;
 

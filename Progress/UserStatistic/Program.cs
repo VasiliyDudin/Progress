@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Entity;
 using System.Text;
 using UserStatistic.API;
+using RabbitMQLibrary.RabbitMQ.Abstract;
+using RabbitMQLibrary;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,16 @@ builder.Services.AddDbContext<DatabaseContext>(option =>
     option.UseNpgsql(connstr);
     option.EnableDetailedErrors();
 });
+
+var rabbitOptions = new RabbitMQOptions();
+//Читаем опции из файла и биндим конфигурацию к переменной
+builder.Services.Configure<RabbitMQOptions>(builder.Configuration.GetSection(RabbitMQOptions.Options));
+builder.Configuration.GetSection(RabbitMQOptions.Options).Bind(rabbitOptions);
+//Создаём BackgroundService для прослушивания входящих сообщений и передаем ему опции
+builder.Services.AddSingleton<IHostedService>(x =>
+ActivatorUtilities.CreateInstance<RabbitMQConsumer>(x, rabbitOptions)
+);
+
 
 var app = builder.Build();
 

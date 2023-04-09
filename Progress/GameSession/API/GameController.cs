@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GameSession.API
 {
-    [Route("api/[controller]")]
+    //[Route("api/[controller]")]
+    [Route("[controller]/[action]")]
     [ApiController]
     public class GameController : ControllerBase
     {
-        [HttpGet("rady")]
+        [HttpGet]
         public IActionResult Rady()
         {
             return Ok();

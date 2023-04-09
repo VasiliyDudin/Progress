@@ -59,7 +59,7 @@ public class UserProvider:IUserProvider
     {
         if (string.IsNullOrWhiteSpace(userView.Password))
             return new BadRequestObjectResult("Пароль не указан!");
-
+        // TODO: Полин сделай проверку на корректность введенного e-mail
         if (await _context.Users.AsNoTracking().AnyAsync(x => x.Email == userView.Email, cancellationToken: stoppingToken))
             return new ConflictObjectResult("Пользователь с такой почтой \"" + userView.Email + "\" уже зарегистрирован");
 
