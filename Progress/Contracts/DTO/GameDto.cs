@@ -20,7 +20,14 @@ namespace Contracts.DTO
 
     public class InitGameDto
     {
-        public string OtherGamerConnectionId { get; set; }
-        public string ShootGamerConnectionId { get; set; }
+        /// <summary>
+        /// ID всех игроков
+        /// </summary>
+        public string[] AllGamerIds { get; set; }
+
+        /// <summary>
+        ///  ID игрока чей выстрел
+        /// </summary>
+        public string ShootGamerId { get; set; }
     }
 }

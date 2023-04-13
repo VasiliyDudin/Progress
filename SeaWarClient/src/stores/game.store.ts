@@ -46,8 +46,10 @@ export const gameStore = defineStore("game", {
             wsWorker.startGame$.pipe(
               take(1),
               tap((result) => {
-                this.enemyGamerId = result.otherGamerConnectionId;
-                this.shootGamerId = result.shootGamerConnectionId;
+                this.enemyGamerId = result.allGamerIds.find(
+                  (gId) => gId !== this.connectionId$.value
+                );
+                this.shootGamerId = result.shootGamerId;
                 this.gameStatus = EStatusGame.Game;
               })
             )

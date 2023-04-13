@@ -12,8 +12,15 @@ export interface IShipDto {
 }
 
 export interface IInitGameDto {
-  otherGamerConnectionId: string;
-  shootGamerConnectionId: string;
+  /**
+   * ID всех игроков
+   */
+  allGamerIds: Array<string>;
+
+  /**
+   * ID игрока чей выстрел
+   */
+  shootGamerId: string;
 }
 export enum EShootStatus {
   Error = -1,

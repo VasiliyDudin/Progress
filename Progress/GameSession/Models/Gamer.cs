@@ -7,14 +7,14 @@ namespace GameSession.Models
     public class Gamer
     {
         IList<CoordinateSimple> HistoryShoot = new List<CoordinateSimple>();
-        public string ConnetcionId { get; set; }
+        public string ConnectionId { get; set; }
         public bool IsShooted { get; set; } = false;
 
         public IEnumerable<ShipDto> Ships { get; set; }
 
         public Gamer(string connetcionId, IEnumerable<ShipDto> ships)
         {
-            ConnetcionId = connetcionId;
+            ConnectionId = connetcionId;
             Ships = ships;
         }
 

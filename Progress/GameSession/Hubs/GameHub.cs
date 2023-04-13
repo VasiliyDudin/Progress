@@ -8,8 +8,6 @@ namespace GameSession.Hubs
 {
     public class GameHub : Hub
     {
-        static Queue<Gamer> userGameRadyToGameConnectIds = new Queue<Gamer>();
-
         public GameManager GameManager { get; }
 
         public GameHub(GameManager gameManager)
@@ -25,27 +23,26 @@ namespace GameSession.Hubs
         {
 
             await Answer(new MessageDto<bool>(msg.Uid, true));
-            var currentGamer = new Gamer(Context.ConnectionId, msg.Payload);
-            userGameRadyToGameConnectIds.TryDequeue(out var otherGamer);
+            GameManager.RegisterGamer(new Gamer(Context.ConnectionId, msg.Payload));
             /// Начинаем игру
-            if (otherGamer != null)
-            {
-                var game = GameManager.AddNewGame(currentGamer, otherGamer);
-                InitGameDto initGame = new InitGameDto()
-                {
-                    OtherGamerConnectionId = Context.ConnectionId,
-                    ShootGamerConnectionId = game.GetShooterGamer().ConnetcionId
-                };
-                await Groups.AddToGroupAsync(Context.ConnectionId, game.Uid.ToString());
-                await Groups.AddToGroupAsync(otherGamer.ConnetcionId, game.Uid.ToString());
-                await Clients.Client(otherGamer.ConnetcionId).SendAsync("StartGame", initGame);
-                initGame.OtherGamerConnectionId = otherGamer.ConnetcionId;
-                await Clients.Caller.SendAsync("StartGame", initGame);
-            }
-            else
-            {
-                userGameRadyToGameConnectIds.Enqueue(currentGamer);
-            }
+            //if (otherGamer != null)
+            //{
+            //    var game = GameManager.AddNewGame(currentGamer, otherGamer);
+            //    InitGameDto initGame = new InitGameDto()
+            //    {
+            //        OtherGamerConnectionId = Context.ConnectionId,
+            //        ShootGamerConnectionId = game.GetShooterGamer().ConnetcionId
+            //    };
+            //    await Groups.AddToGroupAsync(Context.ConnectionId, game.Uid.ToString());
+            //    await Groups.AddToGroupAsync(otherGamer.ConnetcionId, game.Uid.ToString());
+            //    await Clients.Client(otherGamer.ConnetcionId).SendAsync("StartGame", initGame);
+            //    initGame.OtherGamerConnectionId = otherGamer.ConnetcionId;
+            //    await Clients.Caller.SendAsync("StartGame", initGame);
+            //}
+            //else
+            //{
+            //    userGameRadyToGameConnectIds.Enqueue(currentGamer);
+            //}
         }
 
         public async Task Shoot(MessageDto<CoordinateSimple> msg)
