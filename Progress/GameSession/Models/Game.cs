@@ -1,71 +1,205 @@
 ﻿using Contracts.DTO;
 using Contracts.Enums;
-using System;
-using Microsoft.AspNetCore.SignalR;
 using GameSession.Hubs;
-using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.SignalR;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 namespace GameSession.Models
 {
     public class Game
     {
         public IHubContext<GameHub> HubContext { get; }
-        IEnumerable<Gamer> Gamers { get; set; }
+
+        /// <summary>
+        /// идетнификатор текущей игры
+        /// </summary>
         public Guid Uid { get; set; } = Guid.NewGuid();
 
+
+        /// <summary>
+        /// событие о конце игры
+        /// </summary>
+        public Subject<Guid> EndGameSubj = new();
+
+        /// <summary>
+        /// все игроки
+        /// </summary>
+        public Gamer[] Gamers { get; set; }
+
+        /// <summary>
+        /// имя группы WS-Hub-а
+        /// </summary>
         private string HubGroupName { get => this.Uid.ToString(); }
+
+
+        private IDictionary<EShootStatus, Func<CoordinateSimple, ShipDto, Gamer, Gamer, Task>> strategy = new Dictionary<EShootStatus, Func<CoordinateSimple, ShipDto, Gamer, Gamer, Task>>();
 
         public Game(IHubContext<GameHub> hubContext, params Gamer[] gamers)
         {
             HubContext = hubContext;
-            Gamers = gamers;
-            var rand = new Random();
-            gamers[rand.Next(1)].IsShooted = true;
+            InitGamers(gamers);
             InitGameHub();
-        }
 
-        async void InitGameHub()
-        {
-            foreach (var gamer in Gamers)
+            this.strategy.Add(EShootStatus.Error, (coordiante, ship, shootGamer, otherGamer) =>
             {
-                await HubContext.Groups.AddToGroupAsync(gamer.ConnectionId, HubGroupName);
-            }
-            await HubContext.Clients.Group(HubGroupName).SendAsync("StartGame", new InitGameDto()
+                return Task.CompletedTask;
+            });
+
+            this.strategy.Add(EShootStatus.Miss, async (coordiante, ship, shootGamer, otherGamer) =>
             {
-                AllGamerIds = Gamers.Select(g => g.ConnectionId).ToArray(),
-                ShootGamerId = GetShooterGamer().ConnectionId
+                foreach (var gamer in Gamers)
+                {
+                    gamer.SwitchShoot();
+                }
+                await SendShoot(EShootStatus.Miss, coordiante, shootGamer, otherGamer);
+            });
+
+            this.strategy.Add(EShootStatus.Hit, async (coordiante, ship, shootGamer, otherGamer) =>
+            {
+                await SendShoot(EShootStatus.Hit, coordiante, shootGamer, otherGamer);
+            });
+
+            this.strategy.Add(EShootStatus.Killing, async (coordiante, ship, shootGamer, otherGamer) =>
+            {
+                await this.strategy[EShootStatus.Hit](coordiante, ship, shootGamer, otherGamer);
+                await SendGamerMsg("KillingShip", new KillingShipDto
+                {
+                    SourceGamerConnectionId = shootGamer.ConnectionId,
+                    TargetGamerConnectionId = otherGamer.ConnectionId,
+                    GameUid = HubGroupName,
+                    Coordinates = ship.Coordinates.ToArray(),
+                }); ;
+            });
+
+            this.strategy.Add(EShootStatus.KillingAll, async (coordiante, ship, shootGamer, otherGamer) =>
+            {
+                await EndGame(shootGamer.ConnectionId);
             });
         }
 
-        public EShootStatus SendShoot(string shootGamerConnectionId, CoordinateSimple coordinateShoot)
+        /// <summary>
+        /// обработка выстрела
+        /// </summary>
+        public async Task EvolveShoot(string shootGamerConnectionId, CoordinateSimple coordinateShoot)
         {
             var otherGamer = GetOtherGamer(shootGamerConnectionId);
-            var shootGamer = GetShooterGamer(shootGamerConnectionId).AddHistory(coordinateShoot);
+            var shootGamer = GetGamerById(shootGamerConnectionId).AddHistory(coordinateShoot);
 
-            var status = otherGamer.EvolveShoot(coordinateShoot);
-            if (status.IsMissing())
-            {
-                otherGamer.IsShooted = true;
-                shootGamer.IsShooted = false;
-            }
-            return status;
+            var (status, ship) = otherGamer.EvolveShoot(coordinateShoot);
+            await ExecuteStrategy(status, ship, shootGamer, otherGamer, coordinateShoot);
+
         }
 
+        private void InitGamers(Gamer[] gamers)
+        {
+            Gamers = gamers;
+            Gamers[new Random().Next(1)].IsShooted = true;
+            foreach (Gamer gamer in Gamers)
+            {
+                Observable.Merge(gamer.DisconnectedSub).Subscribe(async (connectionId) =>
+                {
+                    await EndGame(GetOtherGamer(connectionId).ConnectionId);
+                });
+            }
+        }
 
+        private async Task EndGame(string winnerGamerId)
+        {
+            await SendGamerMsg("EndGame", new EndGameDto
+            {
+                GameUid = HubGroupName,
+                WinnerGamerId = winnerGamerId
+            });
+            this.EndGameSubj.OnNext(this.Uid);
+            this.EndGameSubj.OnCompleted();
+        }
+
+        private async Task SendShoot(EShootStatus eShootStatus, CoordinateSimple coordinate, Gamer shootGamer, Gamer otherGamer)
+        {
+            await SendGamerMsg("ResultShoot", new ShootResultDto
+            {
+                ShootStatus = eShootStatus,
+                SourceGamerConnectionId = shootGamer.ConnectionId,
+                TargetGamerConnectionId = otherGamer.ConnectionId,
+                GameUid = HubGroupName,
+                NextGamerShooterConnectionId = GetShooterGamer().ConnectionId,
+                Coordinate = coordinate
+            });
+        }
+
+        private async Task ExecuteStrategy(EShootStatus status, ShipDto ship, Gamer shootGamer, Gamer otherGamer, CoordinateSimple coordinateShoot)
+        {
+            if (!strategy.ContainsKey(status))
+            {
+                throw new KeyNotFoundException(status.ToString());
+            }
+            await strategy[status](coordinateShoot, ship, shootGamer, otherGamer);
+        }
+
+        /// <summary>
+        /// проверка на игрока
+        /// </summary>
+        /// <param name="gamerConnectionId"></param>
+        /// <returns></returns>
         public bool IsExistGamer(string gamerConnectionId)
         {
             return Gamers.Any(g => g.ConnectionId.Equals(gamerConnectionId));
         }
 
-        public Gamer GetOtherGamer(string shootGamerConnectionId)
+        /// <summary>
+        /// отправить сообщение группе
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="cmd"></param>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        private async Task SendGamerMsg<T>(string cmd, T payload)
+        {
+            await HubContext.Clients.Group(HubGroupName).SendAsync(cmd, payload);
+        }
+
+        /// <summary>
+        /// создание игры
+        /// </summary>
+        private async void InitGameHub()
+        {
+            foreach (var gamer in Gamers)
+            {
+                await HubContext.Groups.AddToGroupAsync(gamer.ConnectionId, HubGroupName);
+            }
+            await SendGamerMsg("StartGame", new InitGameDto()
+            {
+                GameUid = HubGroupName,
+                AllGamerIds = Gamers.Select(g => g.ConnectionId).ToArray(),
+                ShootGamerId = GetShooterGamer().ConnectionId
+            });
+        }
+
+
+        /// <summary>
+        /// получить другого игрока
+        /// </summary>
+        /// <param name="shootGamerConnectionId"></param>
+        /// <returns></returns>
+        private Gamer GetOtherGamer(string shootGamerConnectionId)
         {
             return Gamers.Single(g => !g.ConnectionId.Equals(shootGamerConnectionId));
         }
-        public Gamer GetShooterGamer(string shootGamerConnectionId)
+
+        /// <summary>
+        /// получить игрока по Id
+        /// </summary>
+        private Gamer GetGamerById(string gamerId)
         {
-            return Gamers.Single(g => g.ConnectionId.Equals(shootGamerConnectionId));
+            return Gamers.Single(g => g.ConnectionId.Equals(gamerId));
         }
-        public Gamer GetShooterGamer()
+
+        /// <summary>
+        /// стреляющий игрок
+        /// </summary>
+        /// <returns></returns>
+        private Gamer GetShooterGamer()
         {
             return Gamers.Single(g => g.IsShooted);
         }

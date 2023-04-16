@@ -6,7 +6,9 @@ import {
 import type {
   IMessageDto,
   IInitGameDto,
-  ShootResultDto,
+  IShootResultDto,
+  IKillingShipDto,
+  IEndGameDto,
 } from "@/models/dto.model";
 import { v4 as uuidv4 } from "uuid";
 import { BehaviorSubject, filter, map, Subject, take } from "rxjs";
@@ -19,12 +21,19 @@ class WsWorker {
   startGame$ = new Subject<IInitGameDto>();
 
   /** результат выстрела */
-  resultShoot$ = new Subject<IMessageDto<ShootResultDto>>();
+  resultShoot$ = new Subject<IShootResultDto>();
+
+  /** корабль убит */
+  killingShip$ = new Subject<IKillingShipDto>();
+
+  /** конец игры */
+  endGame$ = new Subject<IEndGameDto>();
 
   connection: HubConnection;
 
   /** текущий ID соединения */
   connectionId$ = new BehaviorSubject<string>(null);
+
   constructor(url: string) {
     this.connection = new HubConnectionBuilder()
       .withUrl(url, {
@@ -38,6 +47,8 @@ class WsWorker {
       this.subscribeCmd("Answer", this.answer$);
       this.subscribeCmd("StartGame", this.startGame$);
       this.subscribeCmd("ResultShoot", this.resultShoot$);
+      this.subscribeCmd("KillingShip", this.killingShip$);
+      this.subscribeCmd("EndGame", this.endGame$);
     });
     this.connection.on("InitConnection", (connectionId: string) => {
       this.connectionId$.next(connectionId);

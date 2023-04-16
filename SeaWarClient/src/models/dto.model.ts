@@ -11,7 +11,7 @@ export interface IShipDto {
   coordinates: Array<ICoordinateSimple>;
 }
 
-export interface IInitGameDto {
+export interface IInitGameDto extends IGameDto {
   /**
    * ID всех игроков
    */
@@ -22,14 +22,15 @@ export interface IInitGameDto {
    */
   shootGamerId: string;
 }
+
 export enum EShootStatus {
   Error = -1,
-  Unknown = 0,
-  Miss = 1,
+  Miss = 0,
   Hit = 2,
   Killing = 3,
   KillingAll = 4,
 }
+
 /** статусы попадания */
 export const SHOOT_TARGET_STATUSES = [
   EShootStatus.Hit,
@@ -37,10 +38,40 @@ export const SHOOT_TARGET_STATUSES = [
   EShootStatus.KillingAll,
 ];
 
-export interface ShootResultDto {
+/**
+ * Результаты вытсрела
+ */
+export interface IShootResultDto extends IGameShootDto {
   shootStatus: EShootStatus;
-  sourceGamerConnectionId: string;
-  targetGamerConnectionId: string;
   nextGamerShooterConnectionId: string;
   coordinate: ICoordinateSimple;
+}
+
+/**
+ * базовый класс для ДТО моделей по игре
+ */
+interface IGameDto {
+  gameUid: string;
+}
+
+/**
+ * базовый класс для ДТО моделей по обработке выстрела
+ */
+interface IGameShootDto extends IGameDto {
+  sourceGamerConnectionId: string;
+  targetGamerConnectionId: string;
+}
+
+/**
+ * Корабль убит
+ */
+export interface IKillingShipDto extends IGameShootDto {
+  coordinates: Array<ICoordinateSimple>;
+}
+
+export interface IEndGameDto extends IGameDto {
+  /**
+   * ID игрока который виграл
+   */
+  winnerGamerId: string;
 }

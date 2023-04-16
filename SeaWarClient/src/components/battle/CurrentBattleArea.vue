@@ -18,6 +18,7 @@
           init: isInitGame,
           shoot: isShoot({ x, y }),
           miss: isMiss({ x, y }),
+          kill: isKill({ x, y }),
         }"
         @click="startMoveShip({ x, y })"
         @mousemove="toMoveShip({ x, y })"
@@ -125,6 +126,9 @@ export default defineComponent({
     isMiss(coordinate: ICoordinateSimple) {
       return this.statusCoodinante(coordinate) === EShootStatus.Miss;
     },
+    isKill(coordinate: ICoordinateSimple) {
+      return this.statusCoodinante(coordinate) === EShootStatus.Killing;
+    },
   },
 });
 </script>
@@ -145,10 +149,16 @@ export default defineComponent({
   &.shoot {
     background-color: @shoot-color;
   }
-}
-.col-fixed {
-  &.miss {
-    background-color: @miss-color;
+  &.shoot {
+    background-color: @shoot-color;
+  }
+  &.kill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &::after {
+      content: "X";
+    }
   }
 }
 </style>

@@ -16,6 +16,7 @@
           shoot: isShoot({ x, y }),
           miss: isMiss({ x, y }),
           'my-shoot': isMyShoot,
+          kill: isKill({ x, y }),
         }"
         @click="shoot({ x, y })"
       ></div>
@@ -78,6 +79,9 @@ export default defineComponent({
       }
       this.gameStore.sendShoot(coordinate);
     },
+    isKill(coordinate: ICoordinateSimple) {
+      return this.statusCoodinante(coordinate) === EShootStatus.Killing;
+    },
   },
 });
 </script>
@@ -100,8 +104,13 @@ export default defineComponent({
   &.shoot {
     background-color: @shoot-color;
   }
-  &.miss {
-    background-color: @miss-color;
+  &.kill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &::after {
+      content: "X";
+    }
   }
 }
 </style>

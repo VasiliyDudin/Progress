@@ -41,6 +41,13 @@
                 Ищем игрока<br />
                 <ProgressSpinner />
               </div>
+              <div v-if="gameStore.gameStatus === EStatusGame.EndGame">
+                <div v-if="gameStore.userWinnerId === myConnectionId">
+                  Поздравляем вы победили!!
+                </div>
+                <div v-else>вы проиграли, так бывает(</div>
+                <Button @click="refresh()">Повторить</Button>
+              </div>
               <div
                 class="flex flex-column"
                 v-if="gameStore.gameStatus === EStatusGame.Game"
@@ -75,7 +82,6 @@ import { HORIZONTAL_AREA_LENGTH, VERTICAL_AREA_LENGTH } from "./models/consts";
 import { ShipHelper } from "./services/ship.helper";
 import { gameStore, EStatusGame } from "./stores/game.store";
 import { mapStores } from "pinia";
-import type { ICoordinateSimple } from "./models/dto.model";
 import { useToast } from "primevue/usetoast";
 import { messageService } from "./services/message.service";
 
@@ -102,6 +108,7 @@ export default defineComponent({
         [EStatusGame.Init]: "Разметка кораблей",
         [EStatusGame.Find]: "Поиск игрока",
         [EStatusGame.Game]: "Идёт игра",
+        [EStatusGame.EndGame]: "Игра закончилась",
       },
     };
   },
@@ -136,6 +143,10 @@ export default defineComponent({
     },
     startGame() {
       this.gameStore.gameStart(this.ships.map((s) => s.toDto()));
+    },
+    refresh() {
+      this.setRandomShips();
+      this.gameStore.refreshGame();
     },
   },
 });

@@ -14,43 +14,38 @@ namespace GameSession.Hubs
         {
             GameManager = gameManager;
         }
+
         public async override Task OnConnectedAsync()
         {
             await Clients.Caller.SendAsync("InitConnection", Context.ConnectionId);
         }
 
+        public async override Task OnDisconnectedAsync(Exception? exception)
+        {
+            GameManager.RemoveGamer(Context.ConnectionId);
+        }
+
+        /// <summary>
+        /// старт игры
+        /// </summary>
         public async Task GameStart(MessageDto<IEnumerable<ShipDto>> msg)
         {
 
             await Answer(new MessageDto<bool>(msg.Uid, true));
             GameManager.RegisterGamer(new Gamer(Context.ConnectionId, msg.Payload));
-            /// Начинаем игру
-            //if (otherGamer != null)
-            //{
-            //    var game = GameManager.AddNewGame(currentGamer, otherGamer);
-            //    InitGameDto initGame = new InitGameDto()
-            //    {
-            //        OtherGamerConnectionId = Context.ConnectionId,
-            //        ShootGamerConnectionId = game.GetShooterGamer().ConnetcionId
-            //    };
-            //    await Groups.AddToGroupAsync(Context.ConnectionId, game.Uid.ToString());
-            //    await Groups.AddToGroupAsync(otherGamer.ConnetcionId, game.Uid.ToString());
-            //    await Clients.Client(otherGamer.ConnetcionId).SendAsync("StartGame", initGame);
-            //    initGame.OtherGamerConnectionId = otherGamer.ConnetcionId;
-            //    await Clients.Caller.SendAsync("StartGame", initGame);
-            //}
-            //else
-            //{
-            //    userGameRadyToGameConnectIds.Enqueue(currentGamer);
-            //}
         }
 
+        /// <summary>
+        /// выстрел игрока
+        /// </summary>
         public async Task Shoot(MessageDto<CoordinateSimple> msg)
         {
-            var result = GameManager.EvolveShoot(Context.ConnectionId, msg.Payload);
-            await Clients.Group(result.GameUid.ToString()).SendAsync("ResultShoot", msg.CreateAnswer(result));
+            await GameManager.EvolveShoot(Context.ConnectionId, msg.Payload);
         }
 
+        /// <summary>
+        /// ответ на запрос
+        /// </summary>
         private async Task Answer<T>(MessageDto<T> msg)
         {
             await Clients.Caller.SendAsync("Answer", msg);

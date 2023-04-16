@@ -3,31 +3,27 @@ using GameSession.Hubs;
 using GameSession.Models;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 
 namespace GameSession.Services
 {
 
     public class GameManager
     {
-        private Timer timer;
-        private Random random = new Random();
-
         /// <summary>
         /// текущие игры
         /// </summary>
-        private IList<Game> Games = new List<Game>();
+        private IDictionary<Guid, Game> Games = new Dictionary<Guid, Game>();
 
         /// <summary>
         /// свободные игроки
         /// </summary>
         private ConcurrentQueue<Gamer> FreeGamers = new ConcurrentQueue<Gamer>();
 
-        public IHubContext<GameHub> HubContext { get; }
+        private IHubContext<GameHub> HubContext { get; }
 
         public GameManager(IHubContext<GameHub> hubContext)
         {
-            timer = new Timer(CreateGames, null, 0, 5 * 1000);
+            new Timer(CreateGames, null, 0, 5 * 1000);
             HubContext = hubContext;
         }
 
@@ -42,23 +38,28 @@ namespace GameSession.Services
         public void AddNewGame(params Gamer[] gamers)
         {
             var game = new Game(HubContext, gamers);
-            Games.Add(game);
+            Games.Add(game.Uid, game);
+            game.EndGameSubj.Subscribe(gameUid =>
+            {
+                Games.Remove(gameUid);
+            });
         }
 
-        public ShootResultDto EvolveShoot(string shootGamerConnectionId, CoordinateSimple coordinateShoot)
+
+        public async Task EvolveShoot(string shootGamerConnectionId, CoordinateSimple coordinateShoot)
         {
-            var game = Games.Single(g => g.IsExistGamer(shootGamerConnectionId));
-            var status = game.SendShoot(shootGamerConnectionId, coordinateShoot);
-            var otherGamer = game.GetOtherGamer(shootGamerConnectionId);
-            return new ShootResultDto
-            {
-                ShootStatus = status,
-                SourceGamerConnectionId = shootGamerConnectionId,
-                TargetGamerConnectionId = otherGamer.ConnectionId,
-                GameUid = game.Uid,
-                NextGamerShooterConnectionId = game.GetShooterGamer().ConnectionId,
-                Coordinate = coordinateShoot
-            };
+            await Games.Values.Single(g => g.IsExistGamer(shootGamerConnectionId))
+                 .EvolveShoot(shootGamerConnectionId, coordinateShoot);
+        }
+
+        /// <summary>
+        /// удаляем игрока (обрыв связи, и т.д.)
+        /// </summary>
+        /// <param name="connectionId"></param>
+        public void RemoveGamer(string connectionId)
+        {
+            FreeGamers.SingleOrDefault(g => g.EqualsConnectionId(connectionId))?.SetDisconnected();
+            Games.Values.SelectMany(g => g.Gamers).SingleOrDefault(g => g.EqualsConnectionId(connectionId))?.SetDisconnected();
         }
 
         /// <summary>
@@ -74,8 +75,8 @@ namespace GameSession.Services
 
             var gamers = new List<Gamer?>
             {
-                 GetRnadomGamer(),
-                 GetRnadomGamer()
+                 GetRanadomGamer(),
+                 GetRanadomGamer()
              };
 
             if (gamers.Any(gamer => gamer == null))
@@ -91,10 +92,16 @@ namespace GameSession.Services
             CreateGames(stateInfo);
         }
 
-        private Gamer? GetRnadomGamer()
+        private Gamer? GetRanadomGamer()
         {
             while (FreeGamers.TryDequeue(out var gamer))
+            {
+                if (gamer.IsDisconnected)
+                {
+                    return GetRanadomGamer();
+                }
                 return gamer;
+            }
             return null;
         }
     }
