@@ -29,7 +29,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerForOcelotUI(opt => opt.PathToSwaggerGenerator = "/swagger/docs");
 }
-app.UseCors("CorsPolicy");
 app.UseRouting();
 app.UseEndpoints(endpoints =>
 {
@@ -37,6 +36,8 @@ app.UseEndpoints(endpoints =>
         async context => { await context.Response.WriteAsync("Ocelot API Gateway"); });
 });
 app.UseOcelot().Wait();
+app.UseWebSockets();
 // app.UseAuthorization();
 // app.MapControllers();
+app.UseCors("CorsPolicy");
 app.Run();

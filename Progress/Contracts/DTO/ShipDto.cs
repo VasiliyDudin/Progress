@@ -8,6 +8,11 @@ namespace Contracts.DTO
 
         public IEnumerable<CoordinateSimple> Coordinates { get; set; }
 
+        public bool IsKilling()
+        {
+            return Status == EShipStatus.Killing;
+        }
+
         public (EShootStatus, ShipDto) ShootValidate(CoordinateSimple coordinate)
         {
             var targetCoordinate = Coordinates.SingleOrDefault(c => c.Equals(coordinate));

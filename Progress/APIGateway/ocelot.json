@@ -26,7 +26,7 @@
       "UpstreamHttpMethod": [ "Post" ],
       "SwaggerKey": "auth"
     },
-    
+
     {
       "DownstreamPathTemplate": "/api/UserStatistics",
       "DownstreamScheme": "https",

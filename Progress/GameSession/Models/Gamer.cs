@@ -44,9 +44,13 @@ namespace GameSession.Models
         /// </summary>
         /// <param name="coordinateShoot"></param>
         /// <returns></returns>
-        public (EShootStatus, ShipDto) EvolveShoot(CoordinateSimple coordinateShoot)
+        public (EShootStatus, ShipDto?) EvolveShoot(CoordinateSimple coordinateShoot)
         {
             var shootedShipsStatus = Ships.Select(s => s.ShootValidate(coordinateShoot)).ToList();
+            if (Ships.All(s => s.IsKilling()))
+            {
+                return (EShootStatus.KillingAll, null);
+            }
             return shootedShipsStatus.SingleOrDefault((status) => !status.Item1.IsMissing());
 
         }

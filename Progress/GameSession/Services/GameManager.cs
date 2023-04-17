@@ -2,6 +2,8 @@
 using GameSession.Hubs;
 using GameSession.Models;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
+using RabbitMQ.Client;
 using System.Collections.Concurrent;
 
 namespace GameSession.Services
@@ -18,13 +20,21 @@ namespace GameSession.Services
         /// свободные игроки
         /// </summary>
         private ConcurrentQueue<Gamer> FreeGamers = new ConcurrentQueue<Gamer>();
+        private readonly UserStatisticIntegrationOption userStstkSrvOption;
+        private readonly GameStatisticBrokerClient statisticBrokerClient;
 
         private IHubContext<GameHub> HubContext { get; }
 
-        public GameManager(IHubContext<GameHub> hubContext)
+        private IConnection _connection;
+
+        public GameManager(
+            IHubContext<GameHub> hubContext, 
+            GameStatisticBrokerClient statisticBrokerClient)
         {
             new Timer(CreateGames, null, 0, 5 * 1000);
             HubContext = hubContext;
+            this.statisticBrokerClient = statisticBrokerClient;
+            this.userStstkSrvOption = userStstkSrvOption.Value;
         }
 
         /// <summary>

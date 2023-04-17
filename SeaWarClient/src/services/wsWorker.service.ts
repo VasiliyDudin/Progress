@@ -2,6 +2,7 @@ import {
   HubConnectionBuilder,
   HttpTransportType,
   HubConnection,
+  LogLevel,
 } from "@microsoft/signalr";
 import type {
   IMessageDto,
@@ -36,10 +37,8 @@ class WsWorker {
 
   constructor(url: string) {
     this.connection = new HubConnectionBuilder()
-      .withUrl(url, {
-        skipNegotiation: true,
-        transport: HttpTransportType.WebSockets,
-      })
+      .configureLogging(LogLevel.Information)
+      .withUrl(url)
       .build();
 
     this.connection.start().then(() => {
@@ -80,4 +79,6 @@ class WsWorker {
   }
 }
 
-export const wsWorker = new WsWorker("http://localhost:5127/gameHub");
+export const wsWorker = new WsWorker(
+  "https://localhost:7006/gameHub"
+);
