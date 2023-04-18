@@ -2,8 +2,6 @@
 using GameSession.Hubs;
 using GameSession.Models;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Options;
-using RabbitMQ.Client;
 using System.Collections.Concurrent;
 
 namespace GameSession.Services
@@ -20,21 +18,18 @@ namespace GameSession.Services
         /// свободные игроки
         /// </summary>
         private ConcurrentQueue<Gamer> FreeGamers = new ConcurrentQueue<Gamer>();
-        private readonly UserStatisticIntegrationOption userStstkSrvOption;
         private readonly GameStatisticBrokerClient statisticBrokerClient;
 
         private IHubContext<GameHub> HubContext { get; }
 
-        private IConnection _connection;
 
         public GameManager(
-            IHubContext<GameHub> hubContext, 
+            IHubContext<GameHub> hubContext,
             GameStatisticBrokerClient statisticBrokerClient)
         {
             new Timer(CreateGames, null, 0, 5 * 1000);
             HubContext = hubContext;
             this.statisticBrokerClient = statisticBrokerClient;
-            this.userStstkSrvOption = userStstkSrvOption.Value;
         }
 
         /// <summary>
@@ -49,12 +44,13 @@ namespace GameSession.Services
         {
             var game = new Game(HubContext, gamers);
             Games.Add(game.Uid, game);
-            game.EndGameSubj.Subscribe(gameUid =>
+            game.EndGameSubj.Subscribe(payload =>
             {
-                Games.Remove(gameUid);
+                Game game = Games[payload.GameUid]!;
+                Games.Remove(payload.GameUid);
+                SendBrokerWinnerMsg(game.Gamers);
             });
         }
-
 
         public async Task EvolveShoot(string shootGamerConnectionId, CoordinateSimple coordinateShoot)
         {
@@ -70,6 +66,32 @@ namespace GameSession.Services
         {
             FreeGamers.SingleOrDefault(g => g.EqualsConnectionId(connectionId))?.SetDisconnected();
             Games.Values.SelectMany(g => g.Gamers).SingleOrDefault(g => g.EqualsConnectionId(connectionId))?.SetDisconnected();
+        }
+
+        public void SetGamerEntityId(string connectionId, long entityId)
+        {
+            this.Games.Values.SelectMany(g => g.Gamers)
+                .Concat(this.FreeGamers)
+                .SingleOrDefault(g => g.EqualsConnectionId(connectionId))
+                ?.SetUserEntityId(entityId);
+        }
+
+        /// <summary>
+        /// Отправка сообщения на очередь в брокер
+        /// </summary>
+        /// <param name="gamers"></param>
+        private void SendBrokerWinnerMsg(IEnumerable<Gamer> gamers)
+        {
+            if (gamers.All(g => !g.UserEntityId.HasValue))
+            {
+                return;
+            }
+            statisticBrokerClient.PushMsg(new WinnerGamerDto()
+            {
+                WinnerGamerId = gamers.Single(g => g.IsWinner()).UserEntityId,
+                LossGamerId = gamers.Single(g => !g.IsWinner()).UserEntityId,
+            });
+
         }
 
         /// <summary>

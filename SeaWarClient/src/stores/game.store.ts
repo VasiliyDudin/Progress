@@ -6,6 +6,7 @@ import {
 import { defineStore } from "pinia";
 import { filter, switchMap, take, tap, map, takeUntil } from "rxjs";
 import { wsWorker } from "../services/wsWorker.service";
+import { userStore } from "./user.store";
 
 export enum EStatusGame {
   Init = "Init",
@@ -40,11 +41,14 @@ export const gameStore = defineStore("game", {
   actions: {
     connected() {},
     gameStart(sheeps: Array<IShipDto>) {
+      const _userStore = userStore();
       wsWorker
         .getAnswer$<boolean>(wsWorker.sendMsg("GameStart", sheeps))
         .pipe(
           filter((result) => result),
           tap(() => (this.gameStatus = EStatusGame.Find)),
+          /** выставялм пользователя */
+          tap(() => wsWorker.sendMsg("SetUserId", _userStore.id)),
           switchMap(() =>
             wsWorker.startGame$.pipe(
               take(1),

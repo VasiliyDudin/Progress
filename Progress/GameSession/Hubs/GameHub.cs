@@ -1,5 +1,4 @@
 ﻿using Contracts.DTO;
-using Contracts.Enums;
 using GameSession.Models;
 using GameSession.Services;
 using Microsoft.AspNetCore.SignalR;
@@ -41,6 +40,15 @@ namespace GameSession.Hubs
         public async Task Shoot(MessageDto<CoordinateSimple> msg)
         {
             await GameManager.EvolveShoot(Context.ConnectionId, msg.Payload);
+        }
+
+        /// <summary>
+        /// выставляем сопоставление connetionId Id пользователю
+        /// </summary>
+        public Task SetUserId(MessageDto<long> msg)
+        {
+            GameManager.SetGamerEntityId(Context.ConnectionId, msg.Payload);
+            return Task.CompletedTask;
         }
 
         /// <summary>

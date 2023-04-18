@@ -23,6 +23,7 @@ builder.Services.AddControllers();
 // builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerForOcelot(builder.Configuration);
 var app = builder.Build();
+app.UseCors("CorsPolicy");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -39,5 +40,4 @@ app.UseOcelot().Wait();
 app.UseWebSockets();
 // app.UseAuthorization();
 // app.MapControllers();
-app.UseCors("CorsPolicy");
 app.Run();

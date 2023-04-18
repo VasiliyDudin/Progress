@@ -20,7 +20,7 @@ namespace GameSession.Models
         /// <summary>
         /// событие о конце игры
         /// </summary>
-        public Subject<Guid> EndGameSubj = new();
+        public Subject<WinnerPayload> EndGameSubj = new();
 
         /// <summary>
         /// все игроки
@@ -62,7 +62,7 @@ namespace GameSession.Models
 
             this.strategy.Add(EShootStatus.Killing, async (coordiante, ship, shootGamer, otherGamer) =>
             {
-                await this.strategy[EShootStatus.Hit](coordiante, ship, shootGamer, otherGamer);
+                await ExecuteStrategy(EShootStatus.Hit, ship, shootGamer, otherGamer, coordiante);
                 await SendGamerMsg("KillingShip", new KillingShipDto
                 {
                     SourceGamerConnectionId = shootGamer.ConnectionId,
@@ -94,7 +94,9 @@ namespace GameSession.Models
         private void InitGamers(Gamer[] gamers)
         {
             Gamers = gamers;
-            Gamers[new Random().Next(1)].IsShooted = true;
+            var shootGamer = Gamers[new Random().Next(1)];
+            shootGamer.ChangeStatus(EGamerStatus.Shooted);
+            GetOtherGamer(shootGamer.ConnectionId).ChangeStatus(EGamerStatus.Wait);
             foreach (Gamer gamer in Gamers)
             {
                 Observable.Merge(gamer.DisconnectedSub).Subscribe(async (connectionId) =>
@@ -111,7 +113,8 @@ namespace GameSession.Models
                 GameUid = HubGroupName,
                 WinnerGamerId = winnerGamerId
             });
-            this.EndGameSubj.OnNext(this.Uid);
+            this.GetGamerById(winnerGamerId).ChangeStatus(EGamerStatus.Winner);
+            this.EndGameSubj.OnNext(new WinnerPayload(this.Uid, this.GetGamerById(winnerGamerId)));
             this.EndGameSubj.OnCompleted();
         }
 

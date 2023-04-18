@@ -5,6 +5,8 @@ import type {
 } from "@/models/auth.dto";
 import { appAxios } from "@/services/axios.service";
 import { defineStore } from "pinia";
+import { gameStore } from "./game.store";
+import { wsWorker } from "@/services/wsWorker.service";
 
 const LOGIN_URL = "login";
 const REGISTER_URL = "registration";

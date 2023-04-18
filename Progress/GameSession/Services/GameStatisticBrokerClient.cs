@@ -3,7 +3,9 @@ using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using System.Collections.Concurrent;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Unicode;
 
 namespace GameSession.Services
 {
@@ -12,6 +14,12 @@ namespace GameSession.Services
         private readonly UserStatisticIntegrationOption userStstkSrvOption;
 
         private ConcurrentQueue<string> messages = new ConcurrentQueue<string>();
+
+        private JsonSerializerOptions options = new JsonSerializerOptions
+        {
+            Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
+            WriteIndented = true
+        };
 
         public GameStatisticBrokerClient(IOptions<UserStatisticIntegrationOption> userStstkSrvOption)
         {
@@ -32,7 +40,7 @@ namespace GameSession.Services
 
         public void PushMsg<T>(T payload)
         {
-            messages.Enqueue(JsonSerializer.Serialize(payload));
+            messages.Enqueue(JsonSerializer.Serialize(payload, options));
         }
 
         private void DropMessages(Object stateInfo)
@@ -41,15 +49,12 @@ namespace GameSession.Services
             using var connection = factory.CreateConnection();
             using var channel = connection.CreateModel();
 
-            channel.ExchangeDeclare(exchange: userStstkSrvOption.QueueName, type: ExchangeType.Fanout);
-
-
             while (messages.Count > 0 && messages.TryDequeue(out var message))
             {
                 var messageDecode = Encoding.UTF8.GetBytes(message);
                 channel.BasicPublish(
-                                        exchange: userStstkSrvOption.QueueName,
-                                        routingKey: string.Empty,
+                                        exchange: string.Empty,
+                                        routingKey: userStstkSrvOption.QueueName,
                                         basicProperties: null,
                                         body: messageDecode);
             }
