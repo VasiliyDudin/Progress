@@ -237,12 +237,12 @@ export class ShipFor extends AShape {
 
 export const SHIPS: Array<IShip> = [
   new ShipOne(),
-  // new ShipOne(),
+  new ShipOne(),
   // new ShipOne(),
   // new ShipOne(),
   // new ShipOne(),
   // new ShipTwoV1(),
-  // new ShipTwoV2(),
+  new ShipTwoV2(),
   // new ShipTwoV2(),
   // new ShipThreeV1(),
   // new ShipThreeV2(),
