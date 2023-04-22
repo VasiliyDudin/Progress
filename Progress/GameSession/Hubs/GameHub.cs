@@ -30,9 +30,9 @@ namespace GameSession.Hubs
         /// </summary>
         public async Task GameStart(MessageDto<IEnumerable<ShipDto>> msg)
         {
-
             await Answer(new MessageDto<bool>(msg.Uid, true));
             GameManager.RegisterGamer(new Gamer(Context.ConnectionId, msg.Payload));
+            GameManager.RegisterGamer(new GamerBot(Context.ConnectionId, msg.Payload));
         }
 
         /// <summary>

@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 namespace GameSession.Services
 {
 
-    public class GameManager
+    public class GameManager : IGamerManager
     {
         /// <summary>
         /// текущие игры
@@ -36,12 +36,13 @@ namespace GameSession.Services
         /// <summary>
         /// регистрация готового игрока
         /// </summary>
-        public void RegisterGamer(Gamer gamer)
+        public void RegisterGamer(IGamer gamer)
         {
-            FreeGamers.Enqueue(gamer);
+            FreeGamers.Enqueue((Gamer)gamer);
         }
 
-        public void AddNewGame(params Gamer[] gamers)
+
+        public void AddNewGame(params IGamer[] gamers)
         {
             var game = new Game(HubContext, gamers);
             Games.Add(game.Uid, game);
@@ -81,7 +82,7 @@ namespace GameSession.Services
         /// Отправка сообщения на очередь в брокер
         /// </summary>
         /// <param name="gamers"></param>
-        private void SendBrokerWinnerMsg(IEnumerable<IGamer> gamers)
+        public void SendBrokerWinnerMsg(IEnumerable<IGamer> gamers)
         {
             if (gamers.All(g => !g.UserEntityId.HasValue))
             {
@@ -99,7 +100,7 @@ namespace GameSession.Services
         /// в цикле создаёт игры
         /// </summary>
         /// <param name="stateInfo"></param>
-        private void CreateGames(Object stateInfo)
+        public void CreateGames(Object stateInfo)
         {
             if (FreeGamers.Count < 2)
             {
@@ -125,7 +126,7 @@ namespace GameSession.Services
             CreateGames(stateInfo);
         }
 
-        private Gamer? GetRanadomGamer()
+        public Gamer? GetRanadomGamer()
         {
             while (FreeGamers.TryDequeue(out var gamer))
             {

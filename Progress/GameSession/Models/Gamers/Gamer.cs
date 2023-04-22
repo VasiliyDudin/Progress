@@ -53,12 +53,7 @@ namespace GameSession.Models.Gamers
         }
 
         private readonly IEnumerable<ShipDto> Ships;
-
-
-
-
-
-
+        
         public Gamer(string connetcionId, IEnumerable<ShipDto> ships)
         {
             ConnectionId = connetcionId;
