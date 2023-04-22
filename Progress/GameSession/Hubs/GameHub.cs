@@ -1,5 +1,6 @@
 ﻿using Contracts.DTO;
 using GameSession.Models;
+using GameSession.Models.Gamers;
 using GameSession.Services;
 using Microsoft.AspNetCore.SignalR;
 

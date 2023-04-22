@@ -1,6 +1,7 @@
 ﻿using Contracts.DTO;
 using GameSession.Hubs;
 using GameSession.Models;
+using GameSession.Models.Gamers;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 
@@ -80,7 +81,7 @@ namespace GameSession.Services
         /// Отправка сообщения на очередь в брокер
         /// </summary>
         /// <param name="gamers"></param>
-        private void SendBrokerWinnerMsg(IEnumerable<Gamer> gamers)
+        private void SendBrokerWinnerMsg(IEnumerable<IGamer> gamers)
         {
             if (gamers.All(g => !g.UserEntityId.HasValue))
             {

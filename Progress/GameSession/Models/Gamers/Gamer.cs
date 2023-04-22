@@ -2,26 +2,31 @@
 using Contracts.Enums;
 using System.Reactive.Subjects;
 
-namespace GameSession.Models
+namespace GameSession.Models.Gamers
 {
 
 
     /// <summary>
     /// Игрок
     /// </summary>
-    public class Gamer
+    public class Gamer : IGamer
     {
         private IList<CoordinateSimple> HistoryShoot = new List<CoordinateSimple>();
 
         /// <summary>
         /// ID игрока в БД
         /// </summary>
-        public long? UserEntityId = null;
+        public long? UserEntityId { get; set; }= null;
 
         /// <summary>
         /// Ид соединения,он же и главный идентификатор
         /// </summary>
         public string ConnectionId { get; set; }
+
+        /// <summary>
+        /// обрыв соединения, передаётся ConnectionId
+        /// </summary>
+        public Subject<string> DisconnectedSub { get; set; } = new Subject<string>();
 
         private EGamerStatus Status { get; set; } = EGamerStatus.Unknown;
 
@@ -49,10 +54,10 @@ namespace GameSession.Models
 
         private readonly IEnumerable<ShipDto> Ships;
 
-        /// <summary>
-        /// обрыв соединения, передаётся ConnectionId
-        /// </summary>
-        public Subject<string> DisconnectedSub = new();
+
+
+
+
 
         public Gamer(string connetcionId, IEnumerable<ShipDto> ships)
         {
@@ -92,21 +97,21 @@ namespace GameSession.Models
         /// </summary>
         public void SwitchShoot()
         {
-            ChangeStatus(this.IsShooted ? EGamerStatus.Wait : EGamerStatus.Shooted);
+            ChangeStatus(IsShooted ? EGamerStatus.Wait : EGamerStatus.Shooted);
         }
 
-        public bool EqualsConnectionId(string connectionId) { return this.ConnectionId.Equals(connectionId); }
+        public bool EqualsConnectionId(string connectionId) { return ConnectionId.Equals(connectionId); }
 
         public void SetDisconnected()
         {
             ChangeStatus(EGamerStatus.Disconnectd);
-            this.DisconnectedSub.OnNext(this.ConnectionId);
-            this.DisconnectedSub.OnCompleted();
+            DisconnectedSub.OnNext(ConnectionId);
+            DisconnectedSub.OnCompleted();
         }
 
         public void ChangeStatus(EGamerStatus newStatus)
         {
-            this.Status = newStatus;
+            Status = newStatus;
         }
 
         public bool IsWinner()
@@ -116,7 +121,7 @@ namespace GameSession.Models
 
         public void SetUserEntityId(long id)
         {
-            this.UserEntityId = id;
+            UserEntityId = id;
         }
     }
 
