@@ -25,6 +25,10 @@ namespace GameSession.Models.Gamers
 
         private EGamerStatus Status { get; set; } = EGamerStatus.Unknown;
 
+        private CoordinateSimple previousShootCoordinateSimple = new CoordinateSimple();
+
+        private IList<CoordinateSimple> listPreviousShootCoordinateSimple = new List<CoordinateSimple>();
+
         /// <summary>
         /// игрок стреляет
         /// </summary>
@@ -79,7 +83,7 @@ namespace GameSession.Models.Gamers
         {
             if (Status == EGamerStatus.Shooted)
             {
-                CoordinateSimple newCoordinates = CalculateShootCoordinate();
+                CoordinateSimple newCoordinates = CalculateShootCoordinate(true);
                 ShootBotEvent?.Invoke(this.ConnectionId, newCoordinates);
             }
         }
@@ -101,14 +105,40 @@ namespace GameSession.Models.Gamers
         public void SwitchShoot()
         {
             ChangeStatus(IsShooted ? EGamerStatus.Wait : EGamerStatus.Shooted);
-
-            
         }
 
-        private CoordinateSimple CalculateShootCoordinate()
+        private CoordinateSimple CalculateShootCoordinate(bool isHitPrevious)
         {
-            var random = new Random();
-            var newCoordinates = new CoordinateSimple() { X = random.Next(0, 10), Y = random.Next(0, 10) };
+            Random random = new Random();
+            CoordinateSimple newCoordinates = new CoordinateSimple() { X = 5, Y = 5 };
+            int X = 0;
+            int Y = 0;
+
+            if (isHitPrevious)
+            {
+                while (listPreviousShootCoordinateSimple
+                           .Any(c => c.X == X && c.Y == Y))
+                {
+                    X = previousShootCoordinateSimple.X + random.Next(-2, 2);
+                    Y = previousShootCoordinateSimple.Y + random.Next(-2, 2);
+                }
+            }
+            else
+            {
+                while (listPreviousShootCoordinateSimple
+                       .Any(c => c.X == X && c.Y == Y))
+                {
+                    X = random.Next(0, 10);
+                    Y = random.Next(0, 10);
+                }
+            }
+            newCoordinates = new CoordinateSimple()
+            {
+                X = X, Y = Y
+            };
+
+            listPreviousShootCoordinateSimple.Add(newCoordinates);
+            previousShootCoordinateSimple = newCoordinates;
 
             return newCoordinates;
         }
@@ -128,7 +158,7 @@ namespace GameSession.Models.Gamers
 
             if (Status == EGamerStatus.Shooted)
             {
-                CoordinateSimple newCoordinates = CalculateShootCoordinate();
+                CoordinateSimple newCoordinates = CalculateShootCoordinate(false);
                 ShootBotEvent?.Invoke(this.ConnectionId, newCoordinates);
             }
         }
