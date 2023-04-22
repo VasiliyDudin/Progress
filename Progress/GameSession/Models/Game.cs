@@ -92,6 +92,11 @@ namespace GameSession.Models
 
         }
 
+        public static void BotShoot(string shootGamerConnectionId, CoordinateSimple coordinateShoot)
+        {
+            //EvolveShoot(shootGamerConnectionId, coordinateShoot);
+        }
+
         private void InitGamers(IGamer[] gamers)
         {
             Gamers = gamers;

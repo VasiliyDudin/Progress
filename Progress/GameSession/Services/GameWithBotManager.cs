@@ -7,8 +7,7 @@ using System.Collections.Concurrent;
 
 namespace GameSession.Services
 {
-
-    public class GameManager : IGamerManager
+    public class GameWithBotManager : IGamerManager
     {
         /// <summary>
         /// текущие игры
@@ -21,13 +20,10 @@ namespace GameSession.Services
         private ConcurrentQueue<Gamer> FreeGamers = new ConcurrentQueue<Gamer>();
         private readonly GameStatisticBrokerClient statisticBrokerClient;
 
-        private ConcurrentQueue<GamerBot> BotGamers = new ConcurrentQueue<GamerBot>();
-        private GamerBot activeBotGamer;
-
         private IHubContext<GameHub> HubContext { get; }
 
 
-        public GameManager(
+        public GameWithBotManager(
             IHubContext<GameHub> hubContext,
             GameStatisticBrokerClient statisticBrokerClient)
         {
@@ -42,14 +38,6 @@ namespace GameSession.Services
         public void RegisterGamer(IGamer gamer)
         {
             FreeGamers.Enqueue((Gamer)gamer);
-        }
-
-        /// <summary>
-        /// регистрация бота-игрока
-        /// </summary>
-        public void RegisterBotGamer(IGamer gamer)
-        {
-            BotGamers.Enqueue((GamerBot)gamer);
         }
 
 
@@ -70,7 +58,6 @@ namespace GameSession.Services
             await Games.Values.Single(g => g.IsExistGamer(shootGamerConnectionId))
                  .EvolveShoot(shootGamerConnectionId, coordinateShoot);
         }
-
 
         /// <summary>
         /// удаляем игрока (обрыв связи, и т.д.)
@@ -114,16 +101,10 @@ namespace GameSession.Services
         /// <param name="stateInfo"></param>
         public void CreateGames(Object stateInfo)
         {
-            if (BotGamers.Count > 0)
+            if (FreeGamers.Count < 2)
             {
-                CreateGamesWithBot(stateInfo);
                 return;
             }
-
-            //if (FreeGamers.Count < 2)
-            //{
-            //    return;
-            //}
 
             var gamers = new List<Gamer?>
             {
@@ -144,23 +125,6 @@ namespace GameSession.Services
             CreateGames(stateInfo);
         }
 
-        private void CreateGamesWithBot(Object stateInfo)
-        {
-            var gamers = new List<IGamer?>
-            {
-                GetRanadomGamer(),
-                GeBotGamer(),
-            };
-
-            activeBotGamer = gamers.SingleOrDefault(x => x is GamerBot) as GamerBot;
-            if (activeBotGamer != null)
-            {
-                activeBotGamer.ShootBotEvent += EvolveShoot;
-            }
-
-            AddNewGame(gamers.ToArray()!);
-        }
-
         public Gamer? GetRanadomGamer()
         {
             while (FreeGamers.TryDequeue(out var gamer))
@@ -169,15 +133,6 @@ namespace GameSession.Services
                 {
                     return GetRanadomGamer();
                 }
-                return gamer;
-            }
-            return null;
-        }
-
-        public GamerBot? GeBotGamer()
-        {
-            while (BotGamers.TryDequeue(out var gamer))
-            {
                 return gamer;
             }
             return null;
