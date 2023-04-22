@@ -31,6 +31,8 @@ namespace GameSession.Models.Gamers
         /// <returns></returns>
         public (EShootStatus, ShipDto?) EvolveShoot(CoordinateSimple coordinateShoot);
 
+        public void ContinueShoot();
+
         /// <summary>
         /// добавить выстрел в историю 
         /// </summary>

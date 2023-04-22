@@ -70,8 +70,18 @@ namespace GameSession.Models.Gamers
             {
                 return (EShootStatus.KillingAll, null);
             }
-            return shootedShipsStatus.SingleOrDefault((status) => !status.Item1.IsMissing());
 
+            var status = shootedShipsStatus.SingleOrDefault((status) => !status.Item1.IsMissing());
+            return status;
+        }
+
+        public void ContinueShoot()
+        {
+            if (Status == EGamerStatus.Shooted)
+            {
+                CoordinateSimple newCoordinates = CalculateShootCoordinate();
+                ShootBotEvent?.Invoke(this.ConnectionId, newCoordinates);
+            }
         }
 
         /// <summary>
@@ -92,10 +102,15 @@ namespace GameSession.Models.Gamers
         {
             ChangeStatus(IsShooted ? EGamerStatus.Wait : EGamerStatus.Shooted);
 
-            if (IsShooted)
-            {
-                ShootBotEvent?.Invoke(this.ConnectionId, new CoordinateSimple() { X = 3, Y = 3});
-            }
+            
+        }
+
+        private CoordinateSimple CalculateShootCoordinate()
+        {
+            var random = new Random();
+            var newCoordinates = new CoordinateSimple() { X = random.Next(0, 10), Y = random.Next(0, 10) };
+
+            return newCoordinates;
         }
 
         public bool EqualsConnectionId(string connectionId) { return ConnectionId.Equals(connectionId); }
@@ -110,6 +125,12 @@ namespace GameSession.Models.Gamers
         public void ChangeStatus(EGamerStatus newStatus)
         {
             Status = newStatus;
+
+            if (Status == EGamerStatus.Shooted)
+            {
+                CoordinateSimple newCoordinates = CalculateShootCoordinate();
+                ShootBotEvent?.Invoke(this.ConnectionId, newCoordinates);
+            }
         }
 
         public bool IsWinner()

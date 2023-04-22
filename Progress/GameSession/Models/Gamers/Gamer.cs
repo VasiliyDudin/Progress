@@ -76,6 +76,10 @@ namespace GameSession.Models.Gamers
 
         }
 
+        public void ContinueShoot()
+        {
+        }
+
         /// <summary>
         /// добавить выстрел в историю 
         /// </summary>

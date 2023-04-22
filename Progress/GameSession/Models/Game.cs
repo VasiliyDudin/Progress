@@ -58,11 +58,20 @@ namespace GameSession.Models
 
             this.strategy.Add(EShootStatus.Hit, async (coordiante, ship, shootGamer, otherGamer) =>
             {
+                foreach (var gamer in Gamers)
+                {
+                    gamer.ContinueShoot();
+                }
+
                 await SendShoot(EShootStatus.Hit, coordiante, shootGamer, otherGamer);
             });
 
             this.strategy.Add(EShootStatus.Killing, async (coordiante, ship, shootGamer, otherGamer) =>
             {
+                foreach (var gamer in Gamers)
+                {
+                    gamer.ContinueShoot();
+                }
                 await ExecuteStrategy(EShootStatus.Hit, ship, shootGamer, otherGamer, coordiante);
                 await SendGamerMsg("KillingShip", new KillingShipDto
                 {
@@ -88,8 +97,8 @@ namespace GameSession.Models
             var shootGamer = GetGamerById(shootGamerConnectionId).AddHistory(coordinateShoot);
 
             var (status, ship) = otherGamer.EvolveShoot(coordinateShoot);
-            await ExecuteStrategy(status, ship, shootGamer, otherGamer, coordinateShoot);
 
+            await ExecuteStrategy(status, ship, shootGamer, otherGamer, coordinateShoot);
         }
 
         public static void BotShoot(string shootGamerConnectionId, CoordinateSimple coordinateShoot)
