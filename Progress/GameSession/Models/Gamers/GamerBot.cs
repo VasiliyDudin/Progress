@@ -54,7 +54,7 @@ namespace GameSession.Models.Gamers
 
         public GamerBot(IEnumerable<ShipDto> ships)
         {
-            ConnectionId = "Искуственный интеллект дяди Илона";
+            ConnectionId = "-111";
             Ships = ships;
         }
 
@@ -79,10 +79,10 @@ namespace GameSession.Models.Gamers
         /// </summary>
         /// <param name="history"></param>
         /// <returns></returns>
-        public Gamer AddHistory(CoordinateSimple history)
+        public IGamer AddHistory(CoordinateSimple history)
         {
             HistoryShoot.Add(history);
-            return null;
+            return this;
         }
 
         /// <summary>

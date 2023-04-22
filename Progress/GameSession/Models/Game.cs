@@ -201,7 +201,8 @@ namespace GameSession.Models
         /// </summary>
         private IGamer GetGamerById(string gamerId)
         {
-            return Gamers.Single(g => g.ConnectionId.Equals(gamerId));
+            var gamer = Gamers.Single(g => g.ConnectionId.Equals(gamerId));
+            return gamer;
         }
 
         /// <summary>

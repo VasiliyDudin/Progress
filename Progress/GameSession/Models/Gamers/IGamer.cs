@@ -36,7 +36,7 @@ namespace GameSession.Models.Gamers
         /// </summary>
         /// <param name="history"></param>
         /// <returns></returns>
-        public Gamer AddHistory(CoordinateSimple history);
+        public IGamer AddHistory(CoordinateSimple history);
 
         /// <summary>
         /// переключить статус выстрела
