@@ -120,10 +120,10 @@ namespace GameSession.Services
                 return;
             }
 
-            //if (FreeGamers.Count < 2)
-            //{
-            //    return;
-            //}
+            if (FreeGamers.Count < 2)
+            {
+                return;
+            }
 
             var gamers = new List<Gamer?>
             {
