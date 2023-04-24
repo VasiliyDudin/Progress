@@ -63,6 +63,104 @@ namespace GameSession.Models.Gamers
         {
             ConnectionId = "BOT_" + new string(Enumerable.Repeat(chars, 12).Select(s => s[random.Next(s.Length)]).ToArray());
             Ships = ships;
+
+            Ships = GenerateShips();
+        }
+
+        public static IEnumerable<ShipDto> GenerateShips()
+        {
+            var random = new Random();
+            var ships = new List<ShipDto>();
+
+            // генерация 4-х палубного корабля
+            var ship = new ShipDto();
+            var shipCoordinates = new List<CoordinateSimple>();
+            var x = random.Next(0, 7);
+            var y = random.Next(0, 10);
+            for (var i = 0; i < 4; i++)
+            {
+                var coordinate = new CoordinateSimple { X = x + i, Y = y };
+                shipCoordinates.Add(coordinate);
+            }
+            ship.Coordinates = shipCoordinates;
+            ships.Add(ship);
+
+            // генерация двух трехпалубных кораблей
+            for (var j = 0; j < 2; j++)
+            {
+                ship = new ShipDto();
+                shipCoordinates = new List<CoordinateSimple>();
+                var isIntersect = true;
+                while (isIntersect)
+                {
+                    x = random.Next(0, 8);
+                    y = random.Next(0, 10);
+                    for (var i = 0; i < 3; i++)
+                    {
+                        var coordinate = new CoordinateSimple { X = x + i, Y = y };
+                        if (ships.Any(s => s.Coordinates.Any(c => Math.Abs(c.X - coordinate.X) <= 1 && Math.Abs(c.Y - coordinate.Y) <= 1)))
+                        {
+                            isIntersect = true;
+                            break;
+                        }
+                        shipCoordinates.Add(coordinate);
+                        isIntersect = false;
+                    }
+                }
+                ship.Coordinates = shipCoordinates;
+                ships.Add(ship);
+            }
+
+            // генерация трех двухпалубных кораблей
+            for (var j = 0; j < 3; j++)
+            {
+                ship = new ShipDto();
+                shipCoordinates = new List<CoordinateSimple>();
+                var isIntersect = true;
+                while (isIntersect)
+                {
+                    x = random.Next(0, 9);
+                    y = random.Next(0, 10);
+                    for (var i = 0; i < 2; i++)
+                    {
+                        var coordinate = new CoordinateSimple { X = x + i, Y = y };
+                        if (ships.Any(s => s.Coordinates.Any(c => Math.Abs(c.X - coordinate.X) <= 1 && Math.Abs(c.Y - coordinate.Y) <= 1)))
+                        {
+                            isIntersect = true;
+                            break;
+                        }
+                        shipCoordinates.Add(coordinate);
+                        isIntersect = false;
+                    }
+                }
+                ship.Coordinates = shipCoordinates;
+                ships.Add(ship);
+            }
+
+            // генерация четырех однопалубных кораблей
+            for (var j = 0; j < 4; j++)
+            {
+                ship = new ShipDto();
+                shipCoordinates = new List<CoordinateSimple>();
+                var isIntersect = true;
+                while (isIntersect)
+                {
+                    x = random.Next(0, 10);
+                    y = random.Next(0, 10);
+                    var coordinate = new CoordinateSimple { X = x, Y = y };
+                    if (ships.Any(s => s.Coordinates.Any(c => Math.Abs(c.X - coordinate.X) <= 1 && Math.Abs(c.Y - coordinate.Y) <= 1)))
+                    {
+                        isIntersect = true;
+                        continue;
+                    }
+                    shipCoordinates.Add(coordinate);
+                    isIntersect = false;
+                }
+                ship.Coordinates = shipCoordinates;
+                ships.Add(ship);
+            }
+
+            return ships;
         }
 
         /// <summary>
