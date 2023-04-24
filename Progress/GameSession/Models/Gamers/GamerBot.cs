@@ -61,7 +61,7 @@ namespace GameSession.Models.Gamers
 
         public GamerBot(IEnumerable<ShipDto> ships)
         {
-            ConnectionId = new string(Enumerable.Repeat(chars, 12).Select(s => s[random.Next(s.Length)]).ToArray());
+            ConnectionId = "BOT_" + new string(Enumerable.Repeat(chars, 12).Select(s => s[random.Next(s.Length)]).ToArray());
             Ships = ships;
         }
 
