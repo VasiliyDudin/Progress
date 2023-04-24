@@ -1,5 +1,6 @@
 ﻿using Contracts.DTO;
 using GameSession.Models;
+using GameSession.Models.Gamers;
 using GameSession.Services;
 using Microsoft.AspNetCore.SignalR;
 
@@ -25,14 +26,24 @@ namespace GameSession.Hubs
         }
 
         /// <summary>
-        /// старт игры
+        /// старт игры с живым игроком
         /// </summary>
         public async Task GameStart(MessageDto<IEnumerable<ShipDto>> msg)
         {
-
             await Answer(new MessageDto<bool>(msg.Uid, true));
             GameManager.RegisterGamer(new Gamer(Context.ConnectionId, msg.Payload));
         }
+
+        /// <summary>
+        /// старт игры с ботом
+        /// </summary>
+        public async Task GameStartWithBot(MessageDto<IEnumerable<ShipDto>> msg)
+        {
+            await Answer(new MessageDto<bool>(msg.Uid, true));
+            GameManager.RegisterGamer(new Gamer(Context.ConnectionId, msg.Payload));
+            GameManager.RegisterBotGamer(new GamerBot(msg.Payload));
+        }
+
 
         /// <summary>
         /// выстрел игрока

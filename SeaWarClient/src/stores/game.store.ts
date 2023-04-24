@@ -40,10 +40,12 @@ export const gameStore = defineStore("game", {
   },
   actions: {
     connected() {},
-    gameStart(sheeps: Array<IShipDto>) {
+    gameStart(sheeps: Array<IShipDto>, useBot: boolean = false) {
       const _userStore = userStore();
       wsWorker
-        .getAnswer$<boolean>(wsWorker.sendMsg("GameStart", sheeps))
+        .getAnswer$<boolean>(
+          wsWorker.sendMsg(!useBot ? "GameStart" : "GameStartWithBot", sheeps)
+        )
         .pipe(
           filter((result) => result),
           tap(() => (this.gameStatus = EStatusGame.Find)),

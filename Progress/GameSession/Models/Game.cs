@@ -1,6 +1,7 @@
 ﻿using Contracts.DTO;
 using Contracts.Enums;
 using GameSession.Hubs;
+using GameSession.Models.Gamers;
 using Microsoft.AspNetCore.SignalR;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -25,7 +26,7 @@ namespace GameSession.Models
         /// <summary>
         /// все игроки
         /// </summary>
-        public Gamer[] Gamers { get; set; }
+        public IGamer[] Gamers { get; set; }
 
         /// <summary>
         /// имя группы WS-Hub-а
@@ -33,9 +34,9 @@ namespace GameSession.Models
         private string HubGroupName { get => this.Uid.ToString(); }
 
 
-        private IDictionary<EShootStatus, Func<CoordinateSimple, ShipDto, Gamer, Gamer, Task>> strategy = new Dictionary<EShootStatus, Func<CoordinateSimple, ShipDto, Gamer, Gamer, Task>>();
+        private IDictionary<EShootStatus, Func<CoordinateSimple, ShipDto, IGamer, IGamer, Task>> strategy = new Dictionary<EShootStatus, Func<CoordinateSimple, ShipDto, IGamer, IGamer, Task>>();
 
-        public Game(IHubContext<GameHub> hubContext, params Gamer[] gamers)
+        public Game(IHubContext<GameHub> hubContext, params IGamer[] gamers)
         {
             HubContext = hubContext;
             InitGamers(gamers);
@@ -57,6 +58,10 @@ namespace GameSession.Models
 
             this.strategy.Add(EShootStatus.Hit, async (coordiante, ship, shootGamer, otherGamer) =>
             {
+                foreach (var gamer in Gamers)
+                {
+                    gamer.ContinueShoot();
+                }
                 await SendShoot(EShootStatus.Hit, coordiante, shootGamer, otherGamer);
             });
 
@@ -87,23 +92,26 @@ namespace GameSession.Models
             var shootGamer = GetGamerById(shootGamerConnectionId).AddHistory(coordinateShoot);
 
             var (status, ship) = otherGamer.EvolveShoot(coordinateShoot);
-            await ExecuteStrategy(status, ship, shootGamer, otherGamer, coordinateShoot);
 
+            await ExecuteStrategy(status, ship, shootGamer, otherGamer, coordinateShoot);
         }
 
-        private void InitGamers(Gamer[] gamers)
+        public static void BotShoot(string shootGamerConnectionId, CoordinateSimple coordinateShoot)
+        {
+            //EvolveShoot(shootGamerConnectionId, coordinateShoot);
+        }
+
+        private void InitGamers(IGamer[] gamers)
         {
             Gamers = gamers;
             var shootGamer = Gamers[new Random().Next(1)];
             shootGamer.ChangeStatus(EGamerStatus.Shooted);
             GetOtherGamer(shootGamer.ConnectionId).ChangeStatus(EGamerStatus.Wait);
-            foreach (Gamer gamer in Gamers)
+            Observable.Merge(Gamers.Select(gamer => gamer.DisconnectedSub)).Subscribe(async (connectionId) =>
             {
-                Observable.Merge(gamer.DisconnectedSub).Subscribe(async (connectionId) =>
-                {
-                    await EndGame(GetOtherGamer(connectionId).ConnectionId);
-                });
-            }
+                await EndGame(GetOtherGamer(connectionId).ConnectionId);
+            });
+
         }
 
         private async Task EndGame(string winnerGamerId)
@@ -118,7 +126,7 @@ namespace GameSession.Models
             this.EndGameSubj.OnCompleted();
         }
 
-        private async Task SendShoot(EShootStatus eShootStatus, CoordinateSimple coordinate, Gamer shootGamer, Gamer otherGamer)
+        private async Task SendShoot(EShootStatus eShootStatus, CoordinateSimple coordinate, IGamer shootGamer, IGamer otherGamer)
         {
             await SendGamerMsg("ResultShoot", new ShootResultDto
             {
@@ -131,7 +139,7 @@ namespace GameSession.Models
             });
         }
 
-        private async Task ExecuteStrategy(EShootStatus status, ShipDto ship, Gamer shootGamer, Gamer otherGamer, CoordinateSimple coordinateShoot)
+        private async Task ExecuteStrategy(EShootStatus status, ShipDto ship, IGamer shootGamer, IGamer otherGamer, CoordinateSimple coordinateShoot)
         {
             if (!strategy.ContainsKey(status))
             {
@@ -185,7 +193,7 @@ namespace GameSession.Models
         /// </summary>
         /// <param name="shootGamerConnectionId"></param>
         /// <returns></returns>
-        private Gamer GetOtherGamer(string shootGamerConnectionId)
+        private IGamer GetOtherGamer(string shootGamerConnectionId)
         {
             return Gamers.Single(g => !g.ConnectionId.Equals(shootGamerConnectionId));
         }
@@ -193,16 +201,17 @@ namespace GameSession.Models
         /// <summary>
         /// получить игрока по Id
         /// </summary>
-        private Gamer GetGamerById(string gamerId)
+        private IGamer GetGamerById(string gamerId)
         {
-            return Gamers.Single(g => g.ConnectionId.Equals(gamerId));
+            var gamer = Gamers.Single(g => g.ConnectionId.Equals(gamerId));
+            return gamer;
         }
 
         /// <summary>
         /// стреляющий игрок
         /// </summary>
         /// <returns></returns>
-        private Gamer GetShooterGamer()
+        private IGamer GetShooterGamer()
         {
             return Gamers.Single(g => g.IsShooted);
         }

@@ -31,12 +31,21 @@
               </div>
             </div>
             <div class="col-6 flex align-items-center justify-content-center">
-              <Button
-                v-if="gameStore.gameStatus === EStatusGame.Init"
-                style="height: 60px"
-                label="Начать игру"
-                @click="startGame()"
-              />
+              <div class="flex flex-column">
+                <Button
+                  v-if="gameStore.gameStatus === EStatusGame.Init"
+                  style="height: 60px"
+                  label="Начать игру"
+                  @click="startGame()"
+                />
+                <Button
+                  v-if="gameStore.gameStatus === EStatusGame.Init"
+                  style="height: 60px"
+                  class="mt-2"
+                  label="Начать игру с ботом"
+                  @click="startGameWithBot()"
+                />
+              </div>
               <div v-if="gameStore.gameStatus === EStatusGame.Find">
                 Ищем игрока<br />
                 <ProgressSpinner />
@@ -147,6 +156,12 @@ export default defineComponent({
     refresh() {
       this.setRandomShips();
       this.gameStore.refreshGame();
+    },
+    startGameWithBot() {
+      this.gameStore.gameStart(
+        this.ships.map((s) => s.toDto()),
+        true
+      );
     },
   },
 });
