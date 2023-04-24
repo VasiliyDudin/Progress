@@ -117,6 +117,7 @@ namespace GameSession.Services
             if (BotGamers.Count > 0)
             {
                 CreateGamesWithBot(stateInfo);
+                CreateGames(stateInfo);
                 return;
             }
 

@@ -62,16 +62,11 @@ namespace GameSession.Models
                 {
                     gamer.ContinueShoot();
                 }
-
                 await SendShoot(EShootStatus.Hit, coordiante, shootGamer, otherGamer);
             });
 
             this.strategy.Add(EShootStatus.Killing, async (coordiante, ship, shootGamer, otherGamer) =>
             {
-                foreach (var gamer in Gamers)
-                {
-                    gamer.ContinueShoot();
-                }
                 await ExecuteStrategy(EShootStatus.Hit, ship, shootGamer, otherGamer, coordiante);
                 await SendGamerMsg("KillingShip", new KillingShipDto
                 {
@@ -112,13 +107,11 @@ namespace GameSession.Models
             var shootGamer = Gamers[new Random().Next(1)];
             shootGamer.ChangeStatus(EGamerStatus.Shooted);
             GetOtherGamer(shootGamer.ConnectionId).ChangeStatus(EGamerStatus.Wait);
-            foreach (IGamer gamer in Gamers)
+            Observable.Merge(Gamers.Select(gamer => gamer.DisconnectedSub)).Subscribe(async (connectionId) =>
             {
-                Observable.Merge(gamer.DisconnectedSub).Subscribe(async (connectionId) =>
-                {
-                    await EndGame(GetOtherGamer(connectionId).ConnectionId);
-                });
-            }
+                await EndGame(GetOtherGamer(connectionId).ConnectionId);
+            });
+
         }
 
         private async Task EndGame(string winnerGamerId)

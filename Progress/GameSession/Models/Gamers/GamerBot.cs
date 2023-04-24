@@ -6,6 +6,9 @@ namespace GameSession.Models.Gamers
 {
     public class GamerBot : IGamer
     {
+        private const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        private static Random random = new Random();
+
         private IList<CoordinateSimple> HistoryShoot = new List<CoordinateSimple>();
 
         /// <summary>
@@ -58,7 +61,7 @@ namespace GameSession.Models.Gamers
 
         public GamerBot(IEnumerable<ShipDto> ships)
         {
-            ConnectionId = "-111";
+            ConnectionId = new string(Enumerable.Repeat(chars, 12).Select(s => s[random.Next(s.Length)]).ToArray());
             Ships = ships;
         }
 
@@ -134,7 +137,8 @@ namespace GameSession.Models.Gamers
             }
             newCoordinates = new CoordinateSimple()
             {
-                X = X, Y = Y
+                X = X,
+                Y = Y
             };
 
             listPreviousShootCoordinateSimple.Add(newCoordinates);
