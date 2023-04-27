@@ -54,6 +54,7 @@
         }
         ships[i] = shipBuilder.ToString();
     }
+   
 
 }
 
@@ -79,7 +80,7 @@
                             {
                                 var number = temp.Select((item, index) => new { item, index })                           
                                          .FirstOrDefault(p => p.item.Points.Contains(new Point(j, i - 1)))?.index;
-                            // .FirstOrDefault(p => p.item.Start.X == j && p.item.Start.Y == (i - 1))?.index;
+                            
                             if (!(number is null))
                             {
                                 if (temp[(int)number].Start.X == j && temp[(int)number].Start.Y == (i - 1))
@@ -93,13 +94,13 @@
                             }
                             else
                             {
-                                string tt = "";
+                                string typePoint = "";
                                 bool check = CheckBorder(temp, j, i - 1);
                                 @if (!check)
                                 {
-                                    tt = "droppable";
+                                    typePoint = "droppable";
                                 }
-                                <td class="batelship_field_td start_td @tt" name="empty" pointX="@j" pointY="@(i - 1)"> </td>
+                                <td class="batelship_field_td start_td @typePoint" name="empty" pointX="@j" pointY="@(i - 1)"> </td>
                             }                               
                         }
                         </tr>
@@ -109,7 +110,7 @@
     </table>
 </div>
 <div class="p-6">
-    <table class="battleship-table">
+    <table class="battleship-table-2" >
         <thead>
             @{
                 for (var i = 0; i < 11; i++)
@@ -126,7 +127,7 @@
                             <th class="batelship_field">@i</th>
                             @for (var j = 0; j < 10; j++)
                         {
-                                <td class="batelship_field_td"><div class="start_td_na"></div></td>
+                            <td class="batelship_field_td non_ship_block" pointX="@j" pointY="@(i - 1)"><div class="start_td_na"></div></td>
                         }
                         </tr>
                 }

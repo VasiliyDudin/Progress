@@ -1,18 +1,67 @@
-﻿
-<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+﻿<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
     <div class="container ">
         <a class="navbar-brand" id="nav-nav" href="#">
             <img src="/image/nav.png" width="300" alt="BattleShip">
         </a>
-       
         <form class="form-inline">
-            <div class="input-group mb-0 text-muted d-flex justify-content-start align-items-center p-1">         
-                <input type="text" class="form-control" id="inlineFormInputName" placeholder="Логин">
-                <input type="password" class="form-control" id="inputPassword" placeholder="Пароль"  aria-describedby="passwordHelpInline">
+            <div class="input-group mb-0 text-muted d-flex justify-content-start align-items-center p-1">  
+                <div class="form-control" disabled="disabled" id="namePill" style="border:none"></div>
                 <div class="input-group-append" id="button-addon">
-                <button type="button" class="btn btn-warning">Войти</button>
+                <div class="btn-group" role="group">
+                <button class="btn text-center btn-danger" type="button" hidden="hidden" disabled="disabled" id="inputOffAuth">Выйти</button>
+                    </div>
+                </div>
+                <input type="hidden" class="form-control" id="inputGUID" disabled="disabled" value="@Guid.NewGuid()">
+                <input type="email" class="form-control" id="inputEmail" placeholder="Email" disabled="disabled">
+                <input type="password" class="form-control" id="inputPassword" placeholder="Пароль" disabled="disabled" aria-describedby="passwordHelpInline">
+                <div class="input-group-append" id="button-addon">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-warning" id="inputAuth" disabled="disabled">Войти</button>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#Modal" id="inputReg" disabled="disabled"> Регистрация</button>
+                    </div>
                 </div>
             </div>
-    </form> 
+         </form>
+               
+
+        <!-- Modal -->
+        <div class="modal fade" id="Modal" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ModalLabel">Регистрация</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="regName" class="form-label">Логин</label>
+                            <input type="text" class="form-control" id="regName" >
+                            <div class="invalid-feedback">
+                                Имя пользователя не может быть пустым.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="regEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="regEmail">
+                            <div class="invalid-feedback">
+                                Пожалуйста, укажите корректный email.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="regPassword" class="form-label">Пароль</label>
+                            <input type="password" class="form-control" id="regPassword">
+                             <div class="invalid-feedback">
+                               Пароль пользователя не может быть пустым и должен иметь длинну не менее 8 символов.
+                            </div>
+                        </div>                        
+                        <input type="hidden" id="regIp" name="regIp" value="@Model.Ip">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <button type="button" class="btn btn-primary" id="regSave">Сохранить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </nav>
