@@ -4,6 +4,7 @@ using GameSession.Models;
 using GameSession.Models.Gamers;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
+using View.Models.In;
 
 namespace GameSession.Services
 {
@@ -96,16 +97,20 @@ namespace GameSession.Services
         /// <param name="gamers"></param>
         public void SendBrokerWinnerMsg(IEnumerable<IGamer> gamers)
         {
-            if (gamers.All(g => !g.UserEntityId.HasValue))
+            foreach (var gamer in gamers)
             {
-                return;
+                if (!gamer.UserEntityId.HasValue)
+                {
+                    continue;
+                }
+                statisticBrokerClient.PushMsg(new InUserStatistics()
+                {
+                    GameCount = 1,
+                    LossGames = gamer.IsWinner() ? 0 : 1,
+                    UserId = gamer.UserEntityId.Value,
+                    WinGames = gamer.IsWinner() ? 1 : 0,
+                });
             }
-            statisticBrokerClient.PushMsg(new WinnerGamerDto()
-            {
-                WinnerGamerId = gamers.Single(g => g.IsWinner()).UserEntityId,
-                LossGamerId = gamers.Single(g => !g.IsWinner()).UserEntityId,
-            });
-
         }
 
         /// <summary>
