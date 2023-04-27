@@ -27,12 +27,12 @@ namespace GameSession.Services
 
         private IHubContext<GameHub> HubContext { get; }
 
-
+        private readonly Timer timer;
         public GameManager(
             IHubContext<GameHub> hubContext,
             GameStatisticBrokerClient statisticBrokerClient)
         {
-            new Timer(CreateGames, null, 0, 5 * 1000);
+            timer = new Timer(CreateGames, null, 0, 5 * 1000);
             HubContext = hubContext;
             this.statisticBrokerClient = statisticBrokerClient;
         }

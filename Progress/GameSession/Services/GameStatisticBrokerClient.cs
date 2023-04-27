@@ -20,11 +20,11 @@ namespace GameSession.Services
             Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
             WriteIndented = true
         };
-
+        private readonly Timer timer;
         public GameStatisticBrokerClient(IOptions<UserStatisticIntegrationOption> userStstkSrvOption)
         {
             this.userStstkSrvOption = userStstkSrvOption.Value;
-            new Timer(DropMessages, null, 0, 5 * 1000);
+            timer = new Timer(DropMessages, null, 0, 5 * 1000);
 
         }
 
